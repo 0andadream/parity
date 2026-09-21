@@ -1,0 +1,45 @@
+{
+  "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "inAmount": "500000000",
+  "outputMint": "PreANxuXjsy2pvisWWMNB6YaJNzr7681wJJr2rHsfTh",
+  "outAmount": "811675058",
+  "otherAmountThreshold": "807616683",
+  "swapMode": "ExactIn",
+  "slippageBps": 50,
+  "platformFee": null,
+  "priceImpactPct": "0.0464689520619082117896981194",
+  "routePlan": [
+    {
+      "swapInfo": {
+        "ammKey": "Chroid93DKzmgDYmCJELZ6CNC3SZ8WfRXzCkcqVtRy1r",
+        "label": "Meteora DLMM",
+        "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "outputMint": "PreANxuXjsy2pvisWWMNB6YaJNzr7681wJJr2rHsfTh",
+        "inAmount": "500000000",
+        "outAmount": "811675058",
+        "updateContextSlot": "449099773"
+      },
+      "percent": 100,
+      "bps": null
+    }
+  ],
+  "contextSlot": 449099792,
+  "timeTaken": 0.00103513,
+  "swapUsdValue": "499.953383494893000",
+  "mostReliableAmmsQuoteReport": {
+    "info": {
+      "v4D5b4knJ83WzErtDiugxChUZUfWxe2FtDLguarvgFc": "Pair insufficient liquidity",
+      "BZtgQEyS6eXUXicYPHecYQ7PybqodXQMvkjUbP4R8mUU": "500024448"
+    }
+  },
+  "longtailMarketQuoteReport": null,
+  "useIncurredSlippageForQuoting": null,
+  "useRewards": null,
+  "otherRoutePlans": null,
+  "loadedLongtailToken": false,
+  "instructionVersion": null,
+  "additionalIntermediateTokens": [
+    "PreC1KtJ1sBPPqaeeqL6Qb15GTLCYVvyYEwxhdfTwfx",
+    "Xs3oZwbHvqis4NYcf4YKWmEia2eC84wSiVrcYcTqpH8"
+  ]
+}

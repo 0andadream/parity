@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.vercel/
+.parity/
+*.tsbuildinfo
+test-results/
+playwright-report/
+data/day0/*.html
+data/day0/*.js
+.vercel

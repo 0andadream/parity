@@ -1,0 +1,8 @@
+.env*
+.parity/
+.git/
+data/day0/*.html
+data/day0/*.js
+node_modules/
+test-results/
+playwright-report/

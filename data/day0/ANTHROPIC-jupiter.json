@@ -1,0 +1,72 @@
+{
+  "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "inAmount": "500000000",
+  "outputMint": "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
+  "outAmount": "475096567",
+  "otherAmountThreshold": "472721085",
+  "swapMode": "ExactIn",
+  "slippageBps": 50,
+  "platformFee": null,
+  "priceImpactPct": "0",
+  "routePlan": [
+    {
+      "swapInfo": {
+        "ammKey": "H7o7KCr5n3whqcPsPkeCPWrzivKrarqzidD3kt8fijvB",
+        "label": "Deriverse",
+        "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "outputMint": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        "inAmount": "500000000",
+        "outAmount": "500025001",
+        "updateContextSlot": "449099792"
+      },
+      "percent": 100,
+      "bps": null
+    },
+    {
+      "swapInfo": {
+        "ammKey": "4rJggoVMajEUtipev1XhSMjESYk8Zibz6CDHPtUe1mem",
+        "label": "GoonFi V2",
+        "inputMint": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        "outputMint": "So11111111111111111111111111111111111111112",
+        "inAmount": "500025001",
+        "outAmount": "4241029371",
+        "updateContextSlot": "449099792"
+      },
+      "percent": 100,
+      "bps": null
+    },
+    {
+      "swapInfo": {
+        "ammKey": "61mmsZUgoFNuqzXDsRH9TV2U9zc5aL1H5pKKA2pogsCC",
+        "label": "Manifest",
+        "inputMint": "So11111111111111111111111111111111111111112",
+        "outputMint": "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
+        "inAmount": "4241029371",
+        "outAmount": "475096567",
+        "updateContextSlot": "449099784"
+      },
+      "percent": 100,
+      "bps": null
+    }
+  ],
+  "contextSlot": 449099792,
+  "timeTaken": 0.008236518,
+  "swapUsdValue": "499.953383494893000",
+  "mostReliableAmmsQuoteReport": {
+    "info": {
+      "EZyszDEx1LZDt7TsSFV8xdPi49sDKC3mdfv2MVMEQLtU": "464617211",
+      "BZtgQEyS6eXUXicYPHecYQ7PybqodXQMvkjUbP4R8mUU": "500024448",
+      "8sjV1AqBFvFuADBCQHhotaRq5DFFYSjjg1jMyVWMqXvZ": "500021945",
+      "Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE": "4239303070"
+    }
+  },
+  "longtailMarketQuoteReport": null,
+  "useIncurredSlippageForQuoting": null,
+  "useRewards": null,
+  "otherRoutePlans": null,
+  "loadedLongtailToken": false,
+  "instructionVersion": null,
+  "additionalIntermediateTokens": [
+    "PresTj4Yc2bAR197Er7wz4UUKSfqt6FryBEdAriBoQB"
+  ]
+}

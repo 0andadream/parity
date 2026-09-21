@@ -1,0 +1,18 @@
+export const SYMBOLS = ['OPENAI', 'ANTHROPIC', 'SPACEX', 'XAI'] as const;
+export type SymbolName = typeof SYMBOLS[number];
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
+export type State = 'CLEAR' | 'ATTENTION' | 'CHANGED' | 'ACTION' | 'CRITICAL';
+export type Bucket = 'ONCHAIN VERIFIED' | 'ISSUER ATTESTED' | 'MARKET OBSERVED';
+export interface Catalogue { symbol: string; name: string | null; contract_address: string | null; markPrice: number | null; tokenPrice: number | null; markValuation: number | null; impliedValuation: number | null; supply: number | null; statusFields: Record<string, Json>; markUpdatedAt: string | null }
+export interface Extension { extension: string; state?: Record<string, Json> }
+export interface Mint { address: string; owner: string; program: 'Token' | 'Token-2022'; initialized: boolean; mintAuthority: string | null; freezeAuthority: string | null; rawSupply: string; decimals: number; uiSupply: string; scaledUiSupply: string | null; scaledUiConfig: Record<string, Json> | null; extensions: Extension[]; metadata: Record<string, Json> | null; configurationHash: string }
+export interface Quote { routeExists: 'YES' | 'NO' | 'NO DATA'; inputMint: string; inputAmount: string; outputMint: string; outAmount: string | null; priceImpactPct: string | null; routePlan: Json[]; error: Json; sourceUrl: string; contextSlot: number | null }
+export interface Lifecycle { symbol: SymbolName; event: 'ACQUIRED' | 'PUBLIC_COMPANY_TRANSITION' | 'NONE_ON_FILE'; state: 'NONE_ON_FILE' | 'ACTION' | 'WINDOW_CLOSED'; successor: string | null; target: string | null; ratio: number | null; deadline: string | null; consequence: string | null; action: string | null; sourceUrl: string; verifiedAt: string; daysRemaining: number | null }
+export interface Attestation { provider: string; reviewer: string; reportDate: string; mintableSupply: string; mintedSupply: string; sourceUrl: string; scope: string }
+export interface Check { id: string; label: string; bucket: Bucket; expected: Json; current: Json; status: string; attention: boolean; firstSeen: string; sourceUrl: string }
+export interface Diff { field: string; previous: Json; current: Json }
+export interface Snapshot { schemaVersion: 1; symbol: SymbolName; scannedAt: string; firstSeen: string; catalogue: Catalogue | null; catalogueStatus: 'PRESENT' | 'ABSENT' | 'NO DATA'; mint: Mint | null; mintObservable: 'YES' | 'NO' | 'NO DATA'; mintSource: 'CATALOGUE' | 'HISTORICAL_ISSUER_PAGE' | 'NO DATA'; quote: Quote | null; premium: number | null; lifecycle: Lifecycle; attestation: Attestation | null; checks: Check[]; state: State; currentHash: string; previousHash: string | null; changed: boolean; changedFields: Diff[]; canonical: Json; observations: { cataloguePulledAt: string; rpcPulledAt: string; rpcSlot: number | null; quotePulledAt: string; commitment: 'finalized' }; errors: {source: string; message: string}[]; evidenceUrls: string[] }
+export interface HistoryEntry { scannedAt: string; currentHash: string; previousHash: string | null; state: State; changed: boolean; changedFields: Diff[] }
+export interface Detail extends Snapshot { history: HistoryEntry[]; persistence: string; age: number }
+export interface Summary { scannedAt: string; assets: Array<{symbol: SymbolName; state: State; checks: Check[]; lifecycle: Lifecycle; currentHash: string; previousHash: string | null; changed: boolean; age: number; scannedAt: string; mintObservable: Snapshot['mintObservable']}>; hash: string; persistence: string }
+export const isSymbol = (v: string): v is SymbolName => SYMBOLS.includes(v as SymbolName);
