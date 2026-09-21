@@ -9,7 +9,23 @@ function Datum({label,children}:{label:string;children:React.ReactNode}){return 
 function SectionTitle({index,title,label}:{index:string;title:string;label?:string}){return <div className="section-top"><h2><span className="section-index">{index}</span>{title}</h2>{label&&<span className="meta">{label}</span>}</div>;}
 export function Detail({symbol,initialData}:{symbol:SymbolName;initialData:DetailData}){
  const {data:s,loading,error,refresh}=useScan<DetailData>(`/api/scan/${symbol}`,initialData);
- return <><nav className="breadcrumb"><Link href="/">ASSET REGISTER</Link><span>/</span><span>{symbol}</span></nav><div className="detail-heading"><div><div className="eyebrow">PRESTOCKS / EVIDENCE DOSSIER</div><div className="detail-title-line"><AssetEmblem symbol={symbol} size={48}/><h1>{symbol}</h1>{s&&<Badge value={s.state}/></div><div className="detail-meta"><span>LAST OBSERVED {s?<Age at={s.scannedAt} initialAge={s.age}/>:'NO DATA'}</span><span>INTEGRITY HASH {s?shortHash(s.currentHash):'—'}</span></div></div><ScanButton loading={loading} onClick={refresh}/></div>
+ return <>
+ <nav className="breadcrumb"><Link href="/">ASSET REGISTER</Link><span>/</span><span>{symbol}</span></nav>
+ <div className="detail-heading">
+  <div>
+   <div className="eyebrow">PRESTOCKS / EVIDENCE DOSSIER</div>
+   <div className="detail-title-line">
+    <AssetEmblem symbol={symbol} size={48}/>
+    <h1>{symbol}</h1>
+    {s ? <Badge value={s.state}/> : null}
+   </div>
+   <div className="detail-meta">
+    <span>LAST OBSERVED {s ? <Age at={s.scannedAt} initialAge={s.age}/> : 'NO DATA'}</span>
+    <span>INTEGRITY HASH {s ? shortHash(s.currentHash) : '—'}</span>
+   </div>
+  </div>
+  <ScanButton loading={loading} onClick={refresh}/>
+ </div>
  {error&&<div className="error" role="alert">{error} {s?'Previous scan retained; see its timestamp.':''}<button onClick={refresh}>RETRY ↗</button></div>}
  {!s?<div className="loading-row" role="status">{loading?'Observing Solana, issuer evidence and the $500 market route…':'NO DATA'}</div>:<>
  {s.errors.length>0&&<div className="error" role="status">{s.errors.map(e=>`${e.source}: ${e.message}`).join(' ')}</div>}
