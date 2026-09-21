@@ -1,16 +1,16 @@
 # PARITY
 
-**Parity is the integrity and lifecycle monitor for PreStocks.**
+**Integrity and lifecycle monitoring for tokenized private markets.**
 
-Parity continuously snapshots PreStocks across Solana state, issuer evidence, market observations, and lifecycle events. It shows holders what can be independently verified, what is issuer-attested, and what remains outside the observable onchain state.
+Parity is the integrity and lifecycle monitor for PreStocks. It continuously snapshots Solana state, issuer evidence, market observations, and lifecycle events. It shows holders what can be independently verified, what is issuer-attested, and what remains outside the observable onchain state.
 
-[Live app](https://parity-nu-lovat.vercel.app) · **Solana Stocklana · Main Track · PreStocks Bounty**
+[Live app](https://parity-nu-lovat.vercel.app/) · **Solana Stocklana · Main Track · PreStocks Bounty**
 
 > Onchain facts vs issuer claims. Not proof of SPV shares.
 
 ### Why this exists
 
-Use XAI.
+**XAI demonstrates the problem Parity is built to monitor.**
 
 1. xAI was acquired by SpaceX.
 2. PreStocks published a conversion process.
@@ -42,8 +42,8 @@ Lifecycle Sources ───┘         ├── SHA-256
                       │
        ┌──────────────┼───────────────┐
        ↓              ↓               ↓
-   ONCHAIN         ISSUER          MARKET
-   VERIFIED        ATTESTED        OBSERVED
+   ONCHAIN     ISSUER / THIRD-PARTY     MARKET
+   VERIFIED         EVIDENCE            OBSERVED
 
                       +
 
@@ -51,17 +51,17 @@ Lifecycle Sources ───┘         ├── SHA-256
               OBSERVABLE
 ```
 
-No model scores risk. Checks are explicit rules. The UI animation illustrates a scan; it is not a token transfer.
+No model in the decision path. Checks are explicit rules. The UI animation illustrates a scan; it is not a token transfer.
 
 ## Explore the evidence
 
 | Open | What to inspect |
 | --- | --- |
-| [Asset register](https://parity-nu-lovat.vercel.app) | Four PreStocks, evidence classes, lifecycle, integrity hash |
-| [XAI](https://parity-nu-lovat.vercel.app/c/XAI) | Mint still observable; issuer conversion window closed |
-| [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX) | ACTION, holder deadline 12 March 2027, 23:59 UTC |
-| [OPENAI](https://parity-nu-lovat.vercel.app/c/OPENAI) | Mint, authorities, mark, premium, Jupiter observation |
-| [ANTHROPIC](https://parity-nu-lovat.vercel.app/c/ANTHROPIC#issuer) | Dated BlockOffice attestation, with its scope |
+| [Asset register](https://parity-nu-lovat.vercel.app/) | Four PreStocks, evidence classes, lifecycle, integrity hash |
+| [XAI](https://parity-nu-lovat.vercel.app/c/XAI) | Mint still observable; issuer conversion window closed. [PreStocks XAI](https://prestocks.com/xai) |
+| [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX) | ACTION, holder deadline 12 March 2027, 23:59 UTC. [PreStocks SpaceX](https://prestocks.com/spacex) |
+| [OPENAI](https://parity-nu-lovat.vercel.app/c/OPENAI) | Mint, authorities, mark, premium, Jupiter observation. [PreStocks OpenAI](https://prestocks.com/openai) |
+| [ANTHROPIC](https://parity-nu-lovat.vercel.app/c/ANTHROPIC#issuer) | Dated BlockOffice attestation, with its scope. [PreStocks Anthropic](https://prestocks.com/anthropic) |
 | [History](https://parity-nu-lovat.vercel.app/c/OPENAI#history) | BASELINE, STATE CHANGE, CONDITION, not every price tick |
 
 ## States
@@ -112,52 +112,6 @@ When evidence is unavailable:
 
 `API OBSERVED AT` is not `MARK UPDATED AT`. If PreStocks does not expose an authoritative mark-update timestamp, Parity shows `MARK UPDATED AT, NO DATA`. Retrieval time does not establish mark freshness.
 
-## 60-second demo
-
-### 0, 8 sec
-
-Open the homepage.
-
-> “A tokenized private company has two realities: what exists onchain, and what the issuer says that token economically represents. Parity monitors the boundary.”
-
-Point at the four assets.
-
-### 8, 23 sec
-
-Open [XAI](https://parity-nu-lovat.vercel.app/c/XAI).
-
-> “xAI was acquired by SpaceX. PreStocks required XAI holders to convert at 0.7165 SPACEX before September 12.”
-
-Point at `WINDOW CLOSED`, then at the onchain mint state.
-
-> “The token can remain observable on Solana even though the issuer-defined conversion window has closed.”
-
-### 23, 35 sec
-
-Open [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX).
-
-Point at `ACTION` and the live countdown.
-
-> “SpaceX has another lifecycle deadline. Parity tracks it before the holder misses it.”
-
-### 35, 50 sec
-
-Open [OPENAI](https://parity-nu-lovat.vercel.app/c/OPENAI).
-
-Point at mint, supply, mint authority, freeze authority, Token-2022 configuration, mark, premium, Jupiter observation.
-
-> “Every observation is classified. Solana facts are verified. PreStocks claims are issuer-attested. Market data is observed.”
-
-Point at `NOT INDEPENDENTLY OBSERVABLE`.
-
-### 50, 60 sec
-
-Open history. Show `BASELINE`, `CONDITION`, or a real `STATE CHANGE` if one exists.
-
-> **“Parity does not pretend to prove the SPV. It proves what it can observe, labels what it must trust, and records what changed.”**
-
-End on PARITY.
-
 ## Verify it yourself
 
 ```sh
@@ -196,6 +150,9 @@ Credentials are server-only. Never commit `.env.local`.
 
 - Parity is not Proof of Reserves. Parity does not provide investment recommendations.
 - Onchain token state does not independently prove underlying SPV holdings.
+- Issuer information is labelled as issuer evidence.
+- Jupiter observations represent the measured permissionless Solana DEX route only. A missing Jupiter route does not prove liquidity is absent elsewhere.
 - Lifecycle evidence is manually curated in `data/lifecycle.ts`, reviewed on the date displayed.
 - Historical XAI catalogue prices are not manufactured. Current issuer API values remain `NO DATA` when the asset is absent.
+- Missing data is shown as `NO DATA`.
 - The app observes on page/API access; it is not a guaranteed real-time alert feed.
