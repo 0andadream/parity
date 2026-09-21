@@ -4,7 +4,7 @@
 
 ### Know what’s verified.
 
-[![Network: Solana mainnet](https://img.shields.io/badge/network-Solana_mainnet-555555)](#day-0-evidence)
+[![Network: Solana mainnet](https://img.shields.io/badge/network-Solana_mainnet-555555)](#technology)
 [![Scope: PreStocks](https://img.shields.io/badge/scope-PreStocks-C45C26)](#what-parity-is)
 [![Checks: deterministic](https://img.shields.io/badge/checks-deterministic-555555)](#deterministic-checks)
 [![Snapshots: SHA-256](https://img.shields.io/badge/snapshots-SHA--256-555555)](#snapshot-hashing)
@@ -36,7 +36,7 @@ Open any page without connecting a wallet. The application reads sources and rec
 | [ANTHROPIC](https://parity-nu-lovat.vercel.app/c/ANTHROPIC#issuer) | The published BlockOffice report and its date | What the identified third-party attestation covers, with its limitations |
 | [Snapshot history](https://parity-nu-lovat.vercel.app/c/OPENAI#history) | Current/previous hashes and expandable field-level differences | What changed between actual observations |
 
-Lifecycle examples reflect first-party disclosures reviewed on **21 September 2026**. Live prices, supplies, routes and check states can change. Check the timestamp on the observation you are viewing.
+Lifecycle terms are manually reviewed against first-party disclosures, with review dates and source links in each dossier. For current prices, supplies, routes and check states, open the live app and check the observation timestamp.
 
 ## Contents
 
@@ -46,7 +46,6 @@ Lifecycle examples reflect first-party disclosures reviewed on **21 September 20
 - [Evidence model](#evidence-model)
 - [Deterministic checks](#deterministic-checks)
 - [Snapshot hashing](#snapshot-hashing)
-- [Day 0 evidence](#day-0-evidence)
 - [Verify it yourself](#verify-it-yourself)
 - [What is implemented](#what-is-implemented)
 - [Server routes](#server-routes)
@@ -132,123 +131,21 @@ State precedence: overdue required action → **CRITICAL**; future required acti
 
 Object keys are sorted recursively; array order is retained except mint extensions, which are sorted by extension name. SHA-256 hashes UTF-8 canonical JSON. Included: actual issuer values, mint state, authorities, supply, extensions, metadata, lifecycle terms/state, dated attestation evidence, market quantities, routes and source links. Semantic dates such as a deadline, report date and multiplier activation are retained.
 
-Excluded: observation timestamps, RPC/quote context slots, route update slots, request durations, the derived countdown, computed check statuses and history pointers. These exclusions prevent clock ticks from manufacturing changes. Real quotes, supply activity and market prices can legitimately change on every scan. Field-level diffs preserve previous/current values. Availability changes are recorded; a failed scan never silently substitutes Day 0 data.
+Excluded: observation timestamps, RPC/quote context slots, route update slots, request durations, the derived countdown, computed check statuses and history pointers. These exclusions prevent clock ticks from manufacturing changes. Real quotes, supply activity and market prices can legitimately change on every scan. Field-level diffs preserve previous/current values. Availability changes are recorded; a failed scan never silently substitutes archived observations.
 
 Each saved scan has current/previous hashes, a first-seen timestamp and field-level differences. The first observation has no previous hash and is not labeled CHANGED. Up to 100 complete snapshots per asset are retained. History survives deployments in a private Vercel Blob store. ETag conditional writes prevent lost updates between instances; a competing committed snapshot is returned on collision. Local writes are atomic and same-process scans are coalesced. Local JSON is intended for a single development process.
 
-## Day 0 evidence
-
-Observed 21 September 2026. Raw public responses are archived in [data/day0](data/day0). These are historical evidence, never substituted for a failed live scan.
-
-### Catalogue
-
-Source: [PreStocks catalogue API](https://prestocks.com/api/prestocks)
-
-OPENAI, ANTHROPIC and SPACEX are present. XAI is absent. No lifecycle/status field or source mark-update timestamp is present in the returned records. Those values are `NO DATA`. Sanitized sample (only requested assets; descriptions and image links omitted):
-
-<details>
-<summary>Inspect the sanitized catalogue response</summary>
-
-```json
-[
-  {
-    "name": "Anthropic PreStocks",
-    "symbol": "ANTHROPIC",
-    "external_url": "https://www.prestocks.com/anthropic",
-    "contract_address": "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
-    "markPrice": 1047.68859806,
-    "markValuation": 1716472550768,
-    "tokenPrice": 1062.409427739794,
-    "impliedValuation": 1740590308770,
-    "supply": 7381.867194789
-  },
-  {
-    "name": "OpenAI PreStocks",
-    "symbol": "OPENAI",
-    "external_url": "https://www.prestocks.com/openai",
-    "contract_address": "PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF",
-    "markPrice": 994.4312205347201,
-    "markValuation": 1232030968246,
-    "tokenPrice": 1112.1708974101027,
-    "impliedValuation": 1377902221185,
-    "supply": 2826.434948047826
-  },
-  {
-    "name": "SpaceX PreStocks",
-    "symbol": "SPACEX",
-    "external_url": "https://www.prestocks.com/spacex",
-    "contract_address": "PreANxuXjsy2pvisWWMNB6YaJNzr7681wJJr2rHsfTh",
-    "markPrice": 155.22968959039946,
-    "markValuation": 2035233707963,
-    "tokenPrice": 117.46599060435332,
-    "impliedValuation": 1540109654590,
-    "supply": 43712.533765345
-  }
-]
-```
-
-</details>
-
-### Solana accounts
-
-RPC: `https://api.mainnet-beta.solana.com`, `getAccountInfo`, `jsonParsed`, `finalized`. All four accounts are initialized Token-2022 mints owned by `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`.
-
-| Symbol | Mint | Raw supply | Decimals | Base UI supply |
-|---|---|---|---|---|
-| OPENAI | `PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF` | 1901869963771 | 9 | 1901.869963771 |
-| ANTHROPIC | `Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw` | 7381867194789 | 9 | 7381.867194789 |
-| SPACEX | `PreANxuXjsy2pvisWWMNB6YaJNzr7681wJJr2rHsfTh` | 8742506753069 | 9 | 8742.506753069 |
-| XAI | `PreC1KtJ1sBPPqaeeqL6Qb15GTLCYVvyYEwxhdfTwfx` | 2078524355305 | 9 | 2078.524355305 |
-
-All four observed mints have mint authority and freeze authority `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc`. These are recorded authorities, not an endorsement of their configuration.
-
-XAI candidate is independently observable as an initialized Token-2022 mint with onchain symbol XAI and name xAI PreStocks. Its address also appears in the official [XAI page](https://prestocks.com/xai) payload. This verifies the historical address association; it does not create a current catalogue match.
-
-All mints expose permanentDelegate, defaultAccountState, transferFeeConfig, confidentialTransferMint, confidentialTransferFeeConfig, transferHook, scaledUiAmountConfig, metadataPointer, pausableConfig and tokenMetadata. Full states, metadata URIs, and slot evidence are in the RPC files. OPENAI has a scheduled scaled UI multiplier of 1.4861347 effective at Unix 1784305800. Base UI supply and scaled display supply must remain separate.
-
-### Jupiter observations
-
-USDC mint `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`; input `500000000`; ExactIn; 50 bps slippage. Endpoint: [Jupiter Lite quote API](https://lite-api.jup.ag/swap/v1/quote). Raw impact is a fraction (multiply by 100 for percentage display).
-
-| Symbol | Route exists | outAmount (raw) | priceImpactPct (raw) | Venues |
-|---|---|---|---|---|
-| OPENAI | YES | 297114776 | 0.0172409466362027247704126945 | Manifest |
-| ANTHROPIC | YES | 475096567 | 0 | Deriverse, GoonFi V2, Manifest |
-| SPACEX | YES | 811675058 | 0.0464689520619082117896981194 | Meteora DLMM |
-| XAI | YES | 5550272331 | 0.0591908388494875999578579373 | Meteora DLMM, Meteora DLMM |
-
-A missing or thin Jupiter route does not mean the asset has no liquidity through issuer, RFQ, centralized, OTC, or other venues.
-
-### Lifecycle sources
-
-- [XAI](https://prestocks.com/xai): issuer discloses acquisition by SpaceX, conversion at 0.7165 SPACEX per XAI, deadline 2026-09-12T23:59:00Z, and expiration without value after the deadline. Verified against the live page on 2026-09-21. Window closed; mint still observable. The economic consequence is issuer evidence, not a conclusion derived from the mint.
-- [SPACEX](https://prestocks.com/spacex): issuer discloses public-company transition and instructs conversion into $SPCXx or any other token by 2027-03-12T23:59:00Z, with expiration without value afterward. Verified 2026-09-21. ACTION until the deadline; CRITICAL only after it.
-- [OPENAI](https://prestocks.com/openai) and [ANTHROPIC](https://prestocks.com/anthropic): no lifecycle action disclosure found on reviewed product pages; NONE_ON_FILE is not a guarantee that no event exists.
-
-### Backing investigation
-
-The official [FAQ](https://prestocks.com/faq?tab=legal) explains that third-party attestation reports are periodically published or available on request, potentially at the requester's expense. It suggests comparing supply with report figures. The FAQ also states that counterparty legal names are withheld under confidentiality terms.
-
-[SpaceX report](https://prestocks.com/documents/spacex-prestocks-attestation-report.pdf): BlockOffice Pte. Ltd.; reviewer Hue Man Keong, ACCA 5071512; report date 2026-06-17; mintable supply 43,730.30; reported minted supply 43,713.43.
-
-[Anthropic report](https://prestocks.com/documents/anthropic-prestocks-attestation-report.pdf): same provider/reviewer; report date 2026-07-24; mintable supply 7,384.00; reported minted supply 7,383.88.
-
-These are third-party assessments of issuer-supplied documents and public information at a point in time, not statutory audits. They attest to the relationship between reported minted and mintable supply. Parity can inspect the report and its scope; it cannot independently reproduce the underlying document review or establish current custody from those dated reports. No linked report was found on the reviewed OPENAI or XAI product page: NO DATA, not a claim that none exists anywhere. Full private-company cap tables, confidential holding-entity identities and real-time underlying custody remain not independently observable from these public sources.
-
 ## Verify it yourself
 
-### Inspect the saved source evidence
+### Inspect the sources and logic
 
 | Evidence | Where to look |
 | --- | --- |
-| Catalogue payload and capture time | [catalogue.json](data/day0/catalogue.json), [observation.json](data/day0/observation.json) |
-| Finalized mint observations | [OPENAI](data/day0/OPENAI-rpc.json), [ANTHROPIC](data/day0/ANTHROPIC-rpc.json), [SPACEX](data/day0/SPACEX-rpc.json), [XAI](data/day0/XAI-rpc.json) |
-| Raw Jupiter responses | [OPENAI](data/day0/OPENAI-jupiter.json), [ANTHROPIC](data/day0/ANTHROPIC-jupiter.json), [SPACEX](data/day0/SPACEX-jupiter.json), [XAI](data/day0/XAI-jupiter.json) |
-| Curated lifecycle terms and report records | [data/lifecycle.ts](data/lifecycle.ts), [official lifecycle sources](#lifecycle-sources) |
+| Current observations and source links | [Live asset register](https://parity-nu-lovat.vercel.app) and each asset’s dossier |
+| Catalogue, mint and quote collection | [lib/sources.ts](lib/sources.ts) |
+| Reviewed lifecycle terms and report records | [data/lifecycle.ts](data/lifecycle.ts) |
 | Exact check and state logic | [lib/checks.ts](lib/checks.ts) |
 | Canonicalization and field-level differences | [lib/canonical.ts](lib/canonical.ts), [state-bearing fields](lib/engine.ts) |
-
-These captures document a historical observation. They are never substituted for a failed live request.
 
 ### Request a fresh observation
 
@@ -350,8 +247,7 @@ Exact dependency versions are recorded in [package-lock.json](package-lock.json)
 | [lib/service.ts](lib/service.ts) | Scan coalescing, minimum interval and API response assembly |
 | [lib/store.ts](lib/store.ts) | Atomic local writes and conditional private Blob persistence |
 | [data/lifecycle.ts](data/lifecycle.ts) | Reviewed lifecycle disclosures and attestation records |
-| [data/day0](data/day0) | Historical raw catalogue, RPC and quote responses |
-| [scripts](scripts) | Day 0 collection and command-line scanner |
+| [scripts](scripts) | Source collection and command-line scanner |
 | [tests/engine.test.ts](tests/engine.test.ts) | Evidence-engine regression and boundary tests |
 | [.env.example](.env.example) | Server-only configuration template |
 
