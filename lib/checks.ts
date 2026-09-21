@@ -12,7 +12,7 @@ export function evaluate(snapshot: Pick<Snapshot,'symbol'|'catalogueStatus'|'min
  const configStatus=!m?'NO DATA':!p?'FIRST_SEEN':p.configurationHash===m.configurationHash?'UNCHANGED':'CHANGED';
  const mark=s.catalogue?.markPrice;
  const impact=s.quote?.priceImpactPct===null || s.quote?.priceImpactPct===undefined ? null:Number(s.quote.priceImpactPct);
- const quoteStatus=s.quote?.routeExists!=='YES' || impact===null ? 'ATTENTION':impact>0.03?'ATTENTION':'OBSERVED';
+ const quoteStatus=!s.quote || s.quote.routeExists==='NO DATA' || impact===null && s.quote.routeExists!=='NO' ? 'NO DATA':s.quote.routeExists==='NO'?'NO_JUPITER_ROUTE':impact!==null && impact>0.03?'THIN_ON_OBSERVED_ROUTE':'OBSERVED';
  return [
  {...check('mint','Issuer mint match','ONCHAIN VERIFIED',s.catalogueStatus==='ABSENT'?'NOT_IN_CATALOGUE':s.catalogue?.contract_address??null,m?.address??null,mintStatus,mintStatus!=='MATCH',source),...(s.catalogueStatus==='ABSENT'?{description:s.mintObservable==='YES'?'Not in live PreStocks API. Mint still observed on Solana.':'Not in live PreStocks API. See the current Solana mint observation.'}:{})},
  check('supply','Supply & decimals','ONCHAIN VERIFIED',p?{raw:p.rawSupply,decimals:p.decimals,baseUI:p.uiSupply,scaledUI:p.scaledUiSupply}:null,m?{raw:m.rawSupply,decimals:m.decimals,baseUI:m.uiSupply,scaledUI:m.scaledUiSupply}:null,m?'VERIFIED':'NO DATA',!m,source),
@@ -22,13 +22,12 @@ export function evaluate(snapshot: Pick<Snapshot,'symbol'|'catalogueStatus'|'min
  check('mark','Issuer reference mark','ISSUER ATTESTED','Positive reference mark',mark??null,mark!==null && mark!==undefined && mark>0?'ATTESTED':'ATTENTION',!(mark!==null && mark!==undefined && mark>0),CATALOGUE_URL),
  check('lifecycle','Lifecycle disclosure','ISSUER ATTESTED',previous?.lifecycle.state??null,s.lifecycle.state,s.lifecycle.state,s.lifecycle.state!=='NONE_ON_FILE',s.lifecycle.sourceUrl),
  check('premium','Mark / token premium','MARKET OBSERVED','Absolute premium ≤ 15%',s.premium,s.premium===null?'NO DATA':Math.abs(s.premium)>0.15?'ATTENTION':'OBSERVED',s.premium===null || Math.abs(s.premium)>0.15,CATALOGUE_URL),
- check('jupiter','Jupiter · $500 USDC','MARKET OBSERVED','Route present · impact ≤ 3%',s.quote?{route:s.quote.routeExists,outAmount:s.quote.outAmount,priceImpactPct:s.quote.priceImpactPct}:null,quoteStatus,quoteStatus==='ATTENTION',s.quote?.sourceUrl??'https://lite-api.jup.ag/swap/v1/quote'),
+ check('jupiter','Jupiter · $500 USDC','MARKET OBSERVED','Route present · impact ≤ 3%',s.quote?{route:s.quote.routeExists,outAmount:s.quote.outAmount,priceImpactPct:s.quote.priceImpactPct}:null,quoteStatus,quoteStatus!=='OBSERVED',s.quote?.sourceUrl??'https://lite-api.jup.ag/swap/v1/quote'),
  ];
 }
-export function selectState(lifecycle:Snapshot['lifecycle'], checks:Check[],changed:boolean):State {
+export function selectState(lifecycle:Snapshot['lifecycle'], checks:Check[]):State {
  if(lifecycle.state==='WINDOW_CLOSED') return 'CRITICAL';
  if(lifecycle.state==='ACTION') return 'ACTION';
- if(changed) return 'CHANGED';
  if(checks.some(c=>c.attention)) return 'ATTENTION';
  return 'CLEAR';
 }

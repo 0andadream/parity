@@ -3,7 +3,7 @@ import { attestations, FAQ_URL, HISTORICAL_XAI_MINT, lifecycleFor } from '@/data
 import { canonicalize, diff, hash } from './canonical';
 import { CATALOGUE_URL, fetchMint, fetchQuote, parseCatalogue, request } from './sources';
 import { evaluate, selectState } from './checks';
-import type { Catalogue, Json, Snapshot, SymbolName } from './types';
+import type { Catalogue, HistoryEvent, HistoryKind, Json, Snapshot, SymbolName } from './types';
 export interface CatalogueResult { assets:Catalogue[]|null; pulledAt:string; error:string|null }
 export async function loadCatalogue():Promise<CatalogueResult> {
  try {const r=await request(CATALOGUE_URL); if(!r.ok)throw new Error(`Catalogue HTTP ${r.status}`); return {assets:parseCatalogue(r.data),pulledAt:new Date().toISOString(),error:null};}
@@ -37,8 +37,63 @@ export function finalizeSnapshot(snapshot:Snapshot, previous:Snapshot|null):Snap
  s.previousHash=previousState?hash(previousState):null;
  s.changed=previousState!==null && s.previousHash!==s.currentHash;
  s.changedFields=previousState?diff(previousState,s.hashedState):[];
- s.state=selectState(s.lifecycle,s.checks,s.changed);
+ const classified=classify(s,previous);
+ s.historyKind=classified.historyKind;
+ s.historyEvents=classified.historyEvents;
+ s.state=selectState(s.lifecycle,s.checks);
  return s;
+}
+export function conditionBearing(s:Snapshot):Json {
+ const impact=s.quote?.priceImpactPct===null || s.quote?.priceImpactPct===undefined ? null:Number(s.quote.priceImpactPct);
+ const mark=s.catalogue?.markPrice;
+ return {
+  premiumBand:s.premium===null || s.premium===undefined ? 'NO_DATA' : Math.abs(s.premium)>0.15 ? 'OUTSIDE' : 'INSIDE',
+  jupiterRoute:s.quote?.routeExists ?? 'NO DATA',
+  jupiterImpact:!s.quote || s.quote.routeExists!=='YES' || impact===null ? (s.quote?.routeExists==='NO'?'NO_ROUTE':'NO_DATA') : impact>0.03 ? 'THIN' : 'INSIDE',
+  markPresent:mark!==null && mark!==undefined && mark>0,
+ };
+}
+const STATE_LABELS:Record<string,string>={
+ mintAuthority:'MINT AUTHORITY',freezeAuthority:'FREEZE AUTHORITY',configurationHash:'TOKEN CONFIGURATION',
+ catalogueMint:'CONTRACT ADDRESS',catalogueStatus:'CATALOGUE MEMBERSHIP',mintObservable:'MINT OBSERVABLE',
+ mintSource:'MINT SOURCE','lifecycle.state':'LIFECYCLE STATE','lifecycle.ratio':'CONVERSION RATIO',
+ 'lifecycle.deadline':'CONVERSION DEADLINE','lifecycle.event':'LIFECYCLE EVENT','mint.address':'MINT',
+ 'mint.program':'OWNER PROGRAM','mint.decimals':'DECIMALS',attestationPresent:'ATTESTATION',
+ freezePresent:'FREEZE PRESENT',
+};
+const CONDITION_LABELS:Record<string,string>={
+ premiumBand:'PREMIUM THRESHOLD',jupiterRoute:'JUPITER ROUTE',jupiterImpact:'JUPITER IMPACT',markPresent:'ISSUER MARK',
+};
+function formatCondition(field:string, snap:Snapshot):string {
+ if(field==='premiumBand'){
+  const p=snap.premium;
+  if(p===null || p===undefined) return 'NO DATA';
+  const pct=`${p>=0?'+':''}${(p*100).toFixed(1)}%`;
+  return `${pct} · ${Math.abs(p)>0.15?'ATTENTION':'OBSERVED'}`;
+ }
+ if(field==='jupiterRoute') return snap.quote?.routeExists==='NO'?'NO JUPITER ROUTE':snap.quote?.routeExists??'NO DATA';
+ if(field==='jupiterImpact'){
+  if(snap.quote?.routeExists==='NO') return 'NO JUPITER ROUTE';
+  const raw=snap.quote?.priceImpactPct;
+  if(raw===null || raw===undefined) return 'NO DATA';
+  const n=Number(raw);
+  return `${(n*100).toFixed(2)}% · ${n>0.03?'THIN ON OBSERVED ROUTE':'OBSERVED'}`;
+ }
+ if(field==='markPresent'){
+  const mark=snap.catalogue?.markPrice;
+  return mark!==null && mark!==undefined && mark>0?'ATTESTED':'NO DATA';
+ }
+ return 'NO DATA';
+}
+export function classify(s:Snapshot, previous:Snapshot|null):{historyKind:HistoryKind|'UNCHANGED';historyEvents:HistoryEvent[]} {
+ if(!previous) return {historyKind:'BASELINE',historyEvents:[]};
+ const stateDiffs=diff(stateBearing(previous),stateBearing(s));
+ const condDiffs=diff(conditionBearing(previous),conditionBearing(s));
+ const historyEvents:HistoryEvent[]=[
+  ...stateDiffs.map(d=>({kind:'STATE_CHANGE' as const,field:d.field,label:STATE_LABELS[d.field]??d.field.replaceAll('.',' ').toUpperCase(),previous:d.previous,current:d.current})),
+  ...condDiffs.map(d=>({kind:'CONDITION' as const,field:d.field,label:CONDITION_LABELS[d.field]??d.field.toUpperCase(),previous:formatCondition(d.field,previous),current:formatCondition(d.field,s)})),
+ ];
+ return {historyKind:stateDiffs.length?'STATE_CHANGE':condDiffs.length?'CONDITION':'UNCHANGED',historyEvents};
 }
 // Reproject legacy history through the same hash boundary so deployment itself
 // does not manufacture changes or leave market-only diffs in the history UI.

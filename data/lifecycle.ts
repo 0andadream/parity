@@ -20,4 +20,4 @@ export const attestations: Partial<Record<SymbolName, Attestation>> = {
  ANTHROPIC: { provider:'BlockOffice Pte. Ltd.', reviewer:'Hue Man Keong · ACCA 5071512', reportDate:'2026-07-24', mintableSupply:'7384.00', mintedSupply:'7383.88', sourceUrl:'https://prestocks.com/documents/anthropic-prestocks-attestation-report.pdf', scope },
 };
 export const FAQ_URL = 'https://prestocks.com/faq?tab=legal';
-export const MARKET_LIMITATION = 'A missing or thin Jupiter route does not mean the asset has no liquidity through issuer, RFQ, centralized, OTC, or other venues.';
+export const MARKET_LIMITATION = 'A thin or missing Jupiter route does not establish that the asset lacks liquidity through issuer, RFQ, OTC, centralized, or other venues.';

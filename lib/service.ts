@@ -1,11 +1,16 @@
-import { collect, loadCatalogue, normalizeHistory, type CatalogueResult } from './engine';
+import { classify, collect, loadCatalogue, normalizeHistory, type CatalogueResult } from './engine';
 import { readHistory, saveSnapshot, persistenceMode } from './store';
 import { SYMBOLS, type SymbolName, type Detail, type Snapshot, type Summary } from './types';
 import { hash } from './canonical';
 const inFlight=new Map<SymbolName,Promise<Detail>>();
 const MIN_INTERVAL=30_000;
 function detail(snapshot:Snapshot,history:Snapshot[], persistence=persistenceMode()):Detail {
- return {...snapshot,age:Math.max(0,Math.floor((Date.now()-Date.parse(snapshot.scannedAt))/1000)),persistence,history:history.map(({scannedAt,currentHash,previousHash,state,changed,changedFields})=>({scannedAt,currentHash,previousHash,state,changed,changedFields}))};
+ const events=history.map((s,i)=>{
+  const previous=history[i+1]??null;
+  const classified=s.historyKind?{historyKind:s.historyKind,historyEvents:s.historyEvents??[]}:classify(s,previous);
+  return {scannedAt:s.scannedAt,currentHash:s.currentHash,previousHash:s.previousHash,state:s.state,changed:classified.historyKind==='STATE_CHANGE',changedFields:s.changedFields,kind:classified.historyKind,events:classified.historyEvents};
+ }).filter(h=>h.kind && h.kind!=='UNCHANGED');
+ return {...snapshot,age:Math.max(0,Math.floor((Date.now()-Date.parse(snapshot.scannedAt))/1000)),persistence,history:events};
 }
 export async function scan(symbol:SymbolName, catalogue?:Promise<CatalogueResult>, options:{preferStored?:boolean}={}):Promise<Detail> {
  let stored:Awaited<ReturnType<typeof readHistory>>;
