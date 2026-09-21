@@ -156,3 +156,7 @@ Credentials are server-only. Never commit `.env.local`.
 - Historical XAI catalogue prices are not manufactured. Current issuer API values remain `NO DATA` when the asset is absent.
 - Missing data is shown as `NO DATA`.
 - The app observes on page/API access; it is not a guaranteed real-time alert feed.
+
+## License
+
+[MIT](LICENSE)
