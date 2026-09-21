@@ -165,4 +165,10 @@ node scripts/day0-prices.mjs   # authenticated Hermes print for the table above
 
 ## Live
 
-Vercel URL: *(filled on deploy)*
+- GitHub: https://github.com/0andadream/parity
+- Vercel URL: *(filled on deploy — needs `vercel login` plus server env `PYTH_API_KEY`)*
+
+```bash
+npx vercel --prod --yes
+npx vercel env add PYTH_API_KEY
+```
