@@ -55,7 +55,6 @@ Lifecycle terms are manually reviewed against first-party disclosures, with revi
 - [Repository map](#repository-map)
 - [Honesty / limitations](#honesty--limitations)
 - [60-second demo](#60-second-demo)
-- [Acknowledgments](#acknowledgments)
 
 ## What Parity is
 
@@ -272,11 +271,5 @@ Exact dependency versions are recorded in [package-lock.json](package-lock.json)
 3. **25–40s:** SPACEX — show the verified target wording and live countdown.
 4. **40–52s:** OPENAI — inspect mint, supply, authorities, mark, market price, premium and backing classification.
 5. **52–60s:** Open a real changed history row. Parity observes what it can, labels sourced claims, and records what changed.
-
-## Acknowledgments
-
-- [PreStocks](https://prestocks.com) provides the product catalogue and issuer disclosures; report links identify their third-party provider.
-- [OFT Sentinel](https://oft-sentinel.netlify.app/) inspired the source-to-checker packet motion. Parity’s animation represents evidence processing, not token transfers.
-- [Morrow](https://github.com/Enoch208/morrow/) inspired this README’s guided tour, evidence links, architecture explanation and explicit trust boundaries.
 
 **Know what’s verified. See what changed. Understand what still depends on trust.**
