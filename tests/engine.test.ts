@@ -6,7 +6,7 @@ import {canonicalize,diff,hash,stableRoute} from '../lib/canonical';
 import {parseCatalogue,parseMint,parseQuote,USDC} from '../lib/sources';
 import {lifecycleFor} from '../data/lifecycle';
 import {evaluate,selectState} from '../lib/checks';
-import {stateBearing} from '../lib/engine';
+import {stateBearing,finalizeSnapshot,normalizeHistory} from '../lib/engine';
 import type {Json,Snapshot} from '../lib/types';
 const rpc=JSONbig({storeAsString:true}).parse(readFileSync('data/day0/OPENAI-rpc.json','utf8'));
 const mintAddress='PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF';
@@ -22,6 +22,54 @@ test('premium threshold is absolute and strictly greater than 15%; unknowns get 
 test('Jupiter impact threshold uses a fraction and is strictly greater than 3%',()=>{const s=sample();s.quote!.priceImpactPct='.03';assert.equal(evaluate(s,null).find(c=>c.id==='jupiter')!.status,'OBSERVED');s.quote!.priceImpactPct='.030001';assert.equal(evaluate(s,null).find(c=>c.id==='jupiter')!.status,'ATTENTION');});
 test('a source failure is not equivalent to no DEX route',()=>{assert.equal(parseQuote(mintAddress,{ok:false,status:429,data:{error:'Rate limit'}}).routeExists,'NO DATA');assert.equal(parseQuote(mintAddress,{ok:false,status:400,data:{errorCode:'COULD_NOT_FIND_ANY_ROUTE'}}).routeExists,'NO');const d={inputMint:USDC,outputMint:mintAddress,inAmount:'1',outAmount:'100',routePlan:[{}]};assert.equal(parseQuote(mintAddress,{ok:true,status:200,data:d}).routeExists,'NO DATA');});
 test('freeze authority is attention; revoked authority is a known null, not missing',()=>{const s=sample();assert.equal(evaluate(s,null).find(c=>c.id==='freezeAuthority')!.status,'ATTENTION');const next=structuredClone(s);next.mint!.mintAuthority=null;next.mint!.freezeAuthority=null;const checks=evaluate(next,s);assert.equal(checks.find(c=>c.id==='mintAuthority')!.status,'CHANGED');assert.equal(checks.find(c=>c.id==='freezeAuthority')!.status,'VERIFIED');});
-test('historical XAI address cannot manufacture a catalogue match',()=>{const s=sample();s.catalogue=null;s.mintSource='HISTORICAL_ISSUER_PAGE';assert.equal(evaluate(s,null)[0].status,'NO DATA');});
-test('clocks and slots cannot produce phantom changes; market changes do',()=>{const a=sample(),b=structuredClone(a);b.scannedAt='2026-09-21T01:00:00Z';b.observations.rpcSlot=9;b.observations.quotePulledAt='two';b.quote!.contextSlot=999;b.lifecycle.daysRemaining=400;for(const item of b.quote!.routePlan){((item as Record<string,Json>).swapInfo as Record<string,Json>).updateContextSlot='999';}assert.equal(hash(stateBearing(a)),hash(stateBearing(b)));b.quote!.outAmount='123';assert.notEqual(hash(stateBearing(a)),hash(stateBearing(b)));assert.ok(diff(stateBearing(a),stateBearing(b)).some(d=>d.field==='quote.outAmount'));});
+test('historical XAI address cannot manufacture a catalogue match',()=>{const s=sample();s.catalogue=null;s.catalogueStatus='ABSENT';s.mintSource='HISTORICAL_ISSUER_PAGE';const check=evaluate(s,null)[0];assert.equal(check.status,'NOT_IN_CATALOGUE');assert.equal(check.attention,true);assert.equal(check.expected,'NOT_IN_CATALOGUE');assert.equal(check.description,'Not in live PreStocks API. Mint still observed on Solana.');s.catalogueStatus='NO DATA';assert.equal(evaluate(s,null)[0].status,'NO DATA');});
+test('prices, quote amounts, supply activity and clocks stay outside the state hash',()=>{
+ const a=finalizeSnapshot(sample(.1),null),b=structuredClone(a);
+ b.scannedAt='2026-09-21T00:01:00Z';b.observations.rpcSlot=9;b.observations.quotePulledAt='two';
+ b.quote!.contextSlot=999;b.lifecycle.daysRemaining=400;b.quote!.outAmount='123';b.quote!.priceImpactPct='.02';
+ b.catalogue!.markPrice=1000;b.catalogue!.tokenPrice=1110;b.catalogue!.markUpdatedAt='two';b.catalogue!.supply=999;
+ b.premium=.11;b.mint!.rawSupply='999';b.mint!.uiSupply='0.000000999';b.mint!.scaledUiSupply='0.000001';
+ for(const item of b.quote!.routePlan){((item as Record<string,Json>).swapInfo as Record<string,Json>).updateContextSlot='999';}
+ const next=finalizeSnapshot(b,a);
+ assert.equal(next.currentHash,a.currentHash);assert.equal(next.previousHash,a.currentHash);
+ assert.equal(next.changed,false);assert.deepEqual(next.changedFields,[]);assert.notEqual(next.state,'CHANGED');
+ assert.equal(next.observedNow!.outAmount,'123');assert.equal(next.observedNow!.tokenPrice,1110);
+ assert.deepEqual(next.canonical,next.hashedState);
+});
+test('threshold crossings change check status and hash without diffing market numbers',()=>{
+ const a=finalizeSnapshot(sample(.1),null),b=structuredClone(a);b.premium=.2;b.quote!.priceImpactPct='.04';
+ const next=finalizeSnapshot(b,a);assert.equal(next.changed,true);
+ assert.deepEqual(next.changedFields.map(d=>d.field),['checks']);
+ assert.equal(next.checks.find(c=>c.id==='premium')!.status,'ATTENTION');
+ assert.equal(next.checks.find(c=>c.id==='jupiter')!.status,'ATTENTION');
+});
+test('authority changes are recorded once; comparison labels do not cause another change',()=>{
+ const first=finalizeSnapshot(sample(.1),null),same=finalizeSnapshot(structuredClone(first),first);
+ assert.equal(same.changed,false);
+ const changed=structuredClone(same);changed.mint!.mintAuthority='new-authority';
+ const next=finalizeSnapshot(changed,same);assert.equal(next.changed,true);
+ assert.ok(next.changedFields.some(d=>d.field==='mintAuthority'));
+ const after=finalizeSnapshot(structuredClone(next),next);assert.equal(after.changed,false);assert.deepEqual(after.changedFields,[]);
+});
+test('stable integrity fields and lifecycle changes remain detectable',()=>{
+ const a=finalizeSnapshot(sample(.1),null);
+ for(const mutate of [
+  (b:Snapshot)=>{b.mint!.configurationHash='new-config';},
+  (b:Snapshot)=>{b.mint!.freezeAuthority=null;},
+  (b:Snapshot)=>{b.catalogue=null;b.catalogueStatus='ABSENT';},
+  (b:Snapshot)=>{b.mintObservable='NO';b.mint=null;},
+  (b:Snapshot)=>{b.lifecycle.state='WINDOW_CLOSED';},
+  (b:Snapshot)=>{b.attestation={provider:'Provider',reviewer:'Reviewer',reportDate:'2026-09-21',mintableSupply:'1',mintedSupply:'1',sourceUrl:'https://example.com/report',scope:'Test'};},
+ ]){const b=structuredClone(a);mutate(b);assert.equal(finalizeSnapshot(b,a).changed,true);}
+});
+test('legacy history is rebased without market noise or a deployment-only change',()=>{
+ const first=sample(.1);first.currentHash=hash({oldPrice:100});first.canonical={oldPrice:100};
+ const second=structuredClone(first);second.catalogue!.tokenPrice=123;second.quote!.outAmount='456';
+ second.scannedAt='2026-09-21T00:01:00Z';second.currentHash=hash({oldPrice:123});second.canonical={oldPrice:123};second.changed=true;
+ const history=normalizeHistory([second,first]);
+ assert.equal(history[0].changed,false);assert.deepEqual(history[0].changedFields,[]);
+ assert.equal(history[0].previousHash,history[1].currentHash);
+ assert.equal(finalizeSnapshot(structuredClone(second),history[0]).changed,false);
+ assert.deepEqual(normalizeHistory(history),history);
+});
 test('withheld fee activity changes snapshot state but not configuration fingerprint',()=>{const b=structuredClone(rpc);b.result.value.data.parsed.info.extensions.find((e:{extension:string})=>e.extension==='transferFeeConfig').state.withheldAmount+=1;const next=parseMint(mintAddress,b).mint!;assert.equal(mint.configurationHash,next.configurationHash);assert.notEqual(hash(mint),hash(next));});

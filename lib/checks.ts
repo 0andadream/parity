@@ -1,20 +1,20 @@
 import type { Check, Snapshot, State, Json } from './types';
 import { CATALOGUE_URL } from './sources';
-export function evaluate(snapshot: Pick<Snapshot,'symbol'|'catalogue'|'mint'|'quote'|'premium'|'lifecycle'|'mintSource'|'scannedAt'|'firstSeen'>, previous: Snapshot|null): Check[] {
+export function evaluate(snapshot: Pick<Snapshot,'symbol'|'catalogueStatus'|'mintObservable'|'catalogue'|'mint'|'quote'|'premium'|'lifecycle'|'mintSource'|'scannedAt'|'firstSeen'>, previous: Snapshot|null): Check[] {
  const s=snapshot, m=s.mint, p=previous?.mint;
  const source=m ? `https://explorer.solana.com/address/${m.address}` : CATALOGUE_URL;
  const first=(id:string)=>previous?.checks.find(c=>c.id===id)?.firstSeen ?? s.scannedAt;
  function check(id:string,label:string,bucket:Check['bucket'],expected:Json,current:Json,status:string,attention:boolean,sourceUrl:string):Check {return {id,label,bucket,expected,current,status,attention,firstSeen:first(id),sourceUrl};}
  const metadataMint=m?.metadata?.mint;
  const match=!!m && !!s.catalogue?.contract_address && s.catalogue.contract_address===m.address && (!metadataMint || metadataMint===m.address);
- const mintStatus=!m || !s.catalogue?.contract_address ? 'NO DATA' : match?'MATCH':'MISMATCH';
+ const mintStatus=s.catalogueStatus==='ABSENT' ? 'NOT_IN_CATALOGUE' : !m || !s.catalogue?.contract_address ? 'NO DATA' : match?'MATCH':'MISMATCH';
  const authorityStatus=!m?'NO DATA':!p?'FIRST_SEEN':p.mintAuthority===m.mintAuthority?'UNCHANGED':'CHANGED';
  const configStatus=!m?'NO DATA':!p?'FIRST_SEEN':p.configurationHash===m.configurationHash?'UNCHANGED':'CHANGED';
  const mark=s.catalogue?.markPrice;
  const impact=s.quote?.priceImpactPct===null || s.quote?.priceImpactPct===undefined ? null:Number(s.quote.priceImpactPct);
  const quoteStatus=s.quote?.routeExists!=='YES' || impact===null ? 'ATTENTION':impact>0.03?'ATTENTION':'OBSERVED';
  return [
- check('mint','Issuer mint match','ONCHAIN VERIFIED',s.catalogue?.contract_address??null,m?.address??null,mintStatus,mintStatus!=='MATCH',source),
+ {...check('mint','Issuer mint match','ONCHAIN VERIFIED',s.catalogueStatus==='ABSENT'?'NOT_IN_CATALOGUE':s.catalogue?.contract_address??null,m?.address??null,mintStatus,mintStatus!=='MATCH',source),...(s.catalogueStatus==='ABSENT'?{description:s.mintObservable==='YES'?'Not in live PreStocks API. Mint still observed on Solana.':'Not in live PreStocks API. See the current Solana mint observation.'}:{})},
  check('supply','Supply & decimals','ONCHAIN VERIFIED',p?{raw:p.rawSupply,decimals:p.decimals,baseUI:p.uiSupply,scaledUI:p.scaledUiSupply}:null,m?{raw:m.rawSupply,decimals:m.decimals,baseUI:m.uiSupply,scaledUI:m.scaledUiSupply}:null,m?'VERIFIED':'NO DATA',!m,source),
  check('mintAuthority','Mint authority','ONCHAIN VERIFIED',p?p.mintAuthority:'NO PREVIOUS SNAPSHOT',m?m.mintAuthority:'NO DATA',authorityStatus,!m || authorityStatus==='CHANGED',source),
  check('freezeAuthority','Freeze authority','ONCHAIN VERIFIED',p?p.freezeAuthority:'NO PREVIOUS SNAPSHOT',m?m.freezeAuthority:'NO DATA',!m?'NO DATA':m.freezeAuthority?'ATTENTION':'VERIFIED',!m || !!m.freezeAuthority,source),
