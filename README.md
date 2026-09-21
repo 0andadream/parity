@@ -165,10 +165,19 @@ node scripts/day0-prices.mjs   # authenticated Hermes print for the table above
 
 ## Live
 
+- Board: https://parity-nu-lovat.vercel.app
 - GitHub: https://github.com/0andadream/parity
-- Vercel URL: *(filled on deploy — needs `vercel login` plus server env `PYTH_API_KEY`)*
+
+Production `/api/quote` (2026-09-21, no mocks):
+
+```
+AAPLx $500 → outAmount 147538012, impliedPx $338.90, priceImpactPct 0.000392, executable true, Raydium CLMM
+AAPLon $5k → error "No routes found", executable false
+```
+
+`/api/prices` returns a clear JSON error until `PYTH_API_KEY` is set on the Vercel project (server-only). Add it, then redeploy:
 
 ```bash
+printf '%s' 'YOUR_KEY' | npx vercel env add PYTH_API_KEY production
 npx vercel --prod --yes
-npx vercel env add PYTH_API_KEY
 ```
