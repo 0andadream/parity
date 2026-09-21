@@ -1,6 +1,6 @@
 # PARITY
 
-**Integrity and lifecycle monitoring for tokenized private markets.**
+**Parity is the integrity and lifecycle monitor for PreStocks.**
 
 Parity continuously snapshots PreStocks across Solana state, issuer evidence, market observations, and lifecycle events. It shows holders what can be independently verified, what is issuer-attested, and what remains outside the observable onchain state.
 
@@ -100,7 +100,7 @@ A thin or missing Jupiter route does not establish that the asset lacks liquidit
 
 - It does not prove SPV reserves.
 - It does not independently prove private-company share custody unless suitable independent evidence exists.
-- It does not recommend buying or selling.
+- It does not recommend buying or selling. Parity does not provide investment recommendations.
 - It does not assign AI-generated risk scores.
 - It does not treat issuer claims as onchain facts.
 - It does not treat Jupiter as the entire market.
@@ -110,7 +110,7 @@ When evidence is unavailable:
 
 `NO DATA`
 
-`API PULLED AT` is not `MARK UPDATED AT`. If PreStocks does not expose an authoritative mark-update timestamp, Parity shows `MARK UPDATED AT, NO DATA`. Retrieval time does not establish mark freshness.
+`API OBSERVED AT` is not `MARK UPDATED AT`. If PreStocks does not expose an authoritative mark-update timestamp, Parity shows `MARK UPDATED AT, NO DATA`. Retrieval time does not establish mark freshness.
 
 ## 60-second demo
 
@@ -194,7 +194,7 @@ Credentials are server-only. Never commit `.env.local`.
 
 ## Honesty / limitations
 
-- Parity is not Proof of Reserves.
+- Parity is not Proof of Reserves. Parity does not provide investment recommendations.
 - Onchain token state does not independently prove underlying SPV holdings.
 - Lifecycle evidence is manually curated in `data/lifecycle.ts`, reviewed on the date displayed.
 - Historical XAI catalogue prices are not manufactured. Current issuer API values remain `NO DATA` when the asset is absent.

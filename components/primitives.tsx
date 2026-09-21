@@ -6,7 +6,7 @@ export function Mark(){return <span className="brand-mark" aria-hidden="true"><i
 export function AssetEmblem({symbol,size=34}:{symbol:string;size?:number}){
  return <span className={`asset-emblem ${symbol.toLowerCase()}`} style={{width:size,height:size}}><img src={`/logos/${symbol.toLowerCase()}.png`} alt="" width={size} height={size}/></span>;
 }
-export function Header(){return <header className="header"><Link href="/" className="brand" aria-label="Parity home"><Mark/><strong>PARITY</strong><span className="brand-descriptor">PRE VERIFY</span></Link><div className="header-right"><span className="network">SOLANA MAINNET</span><span className="edition">INTEGRITY MONITOR / 01</span></div></header>;}
+export function Header(){return <header className="header"><Link href="/" className="brand" aria-label="Parity home"><Mark/><strong>PARITY</strong></Link><div className="header-right"><span className="network">SOLANA MAINNET</span><span className="edition">INTEGRITY MONITOR / 01</span></div></header>;}
 export function Footer(){return <footer><span>PARITY <b>KNOW WHAT’S VERIFIED.</b></span><span>Onchain token state ≠ underlying SPV holdings.</span></footer>;}
 export function Badge({value}:{value:string}){return <span className={`badge ${value.toLowerCase().replaceAll('_','-').replaceAll(' ','-')}`}>{value.replaceAll('_',' ')}</span>;}
 export function Source({url,children='SOURCE'}:{url:string;children?:React.ReactNode}){return <a className="source" href={(/^https:\/\//.test(url)||url.startsWith('/api/'))?url:undefined} target="_blank" rel="noopener noreferrer">{children} <span aria-hidden="true">↗</span></a>;}

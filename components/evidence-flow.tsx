@@ -3,7 +3,7 @@ import {useEffect,useState,type CSSProperties} from 'react';
 import type {Check} from '@/lib/types';
 import {shortHash} from './primitives';
 interface Props {loading:boolean;scannedAt?:string;hash?:string;checks:Check[];assetCount:number;persistence?:string;error?:string|null}
-const lanes=[{id:'supply',name:'SOLANA RPC',kind:'ONCHAIN',y:25},{id:'mark',name:'PRESTOCKS API',kind:'ISSUER',y:74},{id:'jupiter',name:'JUPITER QUOTE',kind:'MARKET',y:124},{id:'lifecycle',name:'DISCLOSURES',kind:'CURATED',y:173}];
+const lanes=[{id:'supply',name:'SOLANA RPC',kind:'ONCHAIN',y:25},{id:'mark',name:'PRESTOCKS API',kind:'ISSUER',y:74},{id:'jupiter',name:'JUPITER QUOTE',kind:'MARKET',y:124},{id:'lifecycle',name:'ISSUER DISCLOSURES',kind:'CURATED',y:173}];
 export function EvidenceFlow({loading,scannedAt,hash,checks,assetCount,persistence,error}:Props){
  const [playing,setPlaying]=useState(false),[paused,setPaused]=useState(false),[run,setRun]=useState(0);
  useEffect(()=>{if(!scannedAt)return;setPlaying(true);const timer=setTimeout(()=>setPlaying(false),6500);return()=>clearTimeout(timer);},[scannedAt,run]);
@@ -20,5 +20,5 @@ export function EvidenceFlow({loading,scannedAt,hash,checks,assetCount,persisten
  })}</div>
  <div className="flow-graph" aria-hidden="true"><svg viewBox="0 0 690 198" preserveAspectRatio="none"><g className="flow-wires">{lanes.map(l=><path key={l.id} d={`M 0 ${l.y} C 90 ${l.y} 120 99 235 99`}/>)}<path d="M 365 99 L 690 99"/></g>{lanes.map((l,i)=><circle key={`${l.id}-${scannedAt}-${run}`} r="3" className={`flow-packet lane-${i} ${!loading&&!available(l.id)?'flow-blocked':''}`} style={{offsetPath:`path('M 0 ${l.y} C 90 ${l.y} 120 99 235 99')`,animationDelay:`${i*.3}s`} as CSSProperties}/>)}<circle key={`output-${scannedAt}-${run}`} r="3" className="flow-packet flow-output" style={{offsetPath:"path('M 365 99 L 690 99')",animationDelay:'1.45s'} as CSSProperties}/></svg><div className="flow-checker"><div className="checker-frame"><span/><span/><span/></div><strong>DETERMINISTIC<br/>CHECKS</strong><small>CANONICALIZE / SHA-256</small></div></div>
  <div className="flow-receipt"><div className="receipt-top"><span className="receipt-icon" aria-hidden="true">▤</span><span>{loading?'ASSEMBLING':error?'NO NEW SNAPSHOT':scannedAt?saved?'SNAPSHOT SAVED':'NOT SAVED':'SNAPSHOT'}</span></div><strong>{hash?shortHash(hash):'NO DATA'}</strong><small>{loading?'Awaiting source responses':error?'See scan error above':scannedAt?'Evidence + field-level diff':'No fabricated observations'}</small></div></div>
- <div className="flow-caption"><span>Source evidence → deterministic checks → recorded snapshot</span><span>Motion illustrates the scan, not token transfers.</span></div></section>;
+ <div className="flow-caption"><span>Source evidence → deterministic checks → SHA-256 snapshot</span><span>Represents Parity's scan pipeline, not asset transfers.</span></div></section>;
 }
