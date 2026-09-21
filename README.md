@@ -115,6 +115,10 @@ Both were clean at $500, so we quoted $5k until one broke. One ticker: **AAPL**.
 
 Jupiter scores **permissionless Solana DEX fill only**. Ondo size may live on mint / RFQ / CEX. Thin Jupiter is not “Ondo has no liquidity anywhere.” AAPLx and AAPLon are not fungible. Parity does not route between them and does not execute swaps.
 
+## Mark
+
+Twin ticks: two vertical price prints, same height, 4px apart, never merge. Favicon is the mark on `#07080a`. Lockup is 16px mark, then PARITY (A as an inverted V / spread), a hairline, then AAPL in tabular nums.
+
 ## App
 
 Next.js App Router, TypeScript, Tailwind. One page. Secrets only on the server.

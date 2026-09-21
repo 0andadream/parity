@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+});
 
 const mono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -20,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${mono.variable} antialiased`}>{children}</body>
+      <body className={`${geist.variable} ${mono.variable} antialiased`}>{children}</body>
     </html>
   );
 }

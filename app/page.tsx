@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Lockup } from "@/components/Lockup";
 import { MAX_IMPACT, SIZE_USD, WRAPPERS, type SizeUsd } from "@/lib/feeds";
 import { nyseSession } from "@/lib/session";
 
@@ -196,8 +197,10 @@ export default function Page() {
     <main className="mx-auto max-w-5xl px-4 py-5 text-[13px] leading-tight">
       <header className="flex flex-wrap items-end justify-between gap-3 border-b border-[#1c2229] pb-3">
         <div>
-          <div className="text-[10px] tracking-[0.35em] text-[#8b95a1]">PARITY / AAPL</div>
-          <h1 className="mt-1 text-xl tracking-tight">cash vs xStock vs Ondo</h1>
+          <Lockup />
+          <h1 className="mt-1.5 text-[11px] tracking-[0.22em] text-[#8b95a1]">
+            cash vs xStock vs Ondo
+          </h1>
         </div>
         <div className="flex items-center gap-3">
           <span
