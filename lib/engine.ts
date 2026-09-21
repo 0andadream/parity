@@ -14,7 +14,8 @@ export function stateBearing(s:Snapshot):Json {
  const {daysRemaining: _days, verifiedAt: _reviewed, ...lifecycle}=s.lifecycle;
  // Comparison labels (FIRST_SEEN / CHANGED / UNCHANGED) are not durable state.
  // The authority and configuration values themselves record those changes once.
- const checks=evaluate(s,null).map(c=>({id:c.id,status:
+ const hashedIds=new Set(['mint','supply','mintAuthority','freezeAuthority','configuration','lifecycle']);
+ const checks=evaluate(s,null).filter(c=>hashedIds.has(c.id)).map(c=>({id:c.id,status:
   c.id==='mintAuthority' || c.id==='configuration' ? (!m?'NO DATA':c.id==='configuration'&&!m.initialized?'ATTENTION':'VERIFIED') : c.status}));
  return JSON.parse(canonicalize({schemaVersion:2,symbol:s.symbol,
   mint:m?{address:m.address,owner:m.owner,program:m.program,initialized:m.initialized,decimals:m.decimals}:null,
@@ -22,7 +23,7 @@ export function stateBearing(s:Snapshot):Json {
   freezePresent:m?m.freezeAuthority!==null:null,configurationHash:m?.configurationHash??null,
   catalogueStatus:s.catalogueStatus,catalogueMint:s.catalogue?.contract_address??null,
   mintObservable:s.mintObservable,mintSource:s.mintSource,lifecycle,checks,
-  routeExists:s.quote?.routeExists??'NO DATA',attestationPresent:s.attestation!==null}));
+  attestationPresent:s.attestation!==null}));
 }
 export function finalizeSnapshot(snapshot:Snapshot, previous:Snapshot|null):Snapshot {
  const s={...snapshot,schemaVersion:2 as const};

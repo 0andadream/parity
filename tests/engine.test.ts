@@ -36,12 +36,12 @@ test('prices, quote amounts, supply activity and clocks stay outside the state h
  assert.equal(next.observedNow!.outAmount,'123');assert.equal(next.observedNow!.tokenPrice,1110);
  assert.deepEqual(next.canonical,next.hashedState);
 });
-test('threshold crossings change check status and hash without diffing market numbers',()=>{
+test('premium and impact threshold crossings stay in observedNow and do not flip CHANGED',()=>{
  const a=finalizeSnapshot(sample(.1),null),b=structuredClone(a);b.premium=.2;b.quote!.priceImpactPct='.04';
- const next=finalizeSnapshot(b,a);assert.equal(next.changed,true);
- assert.deepEqual(next.changedFields.map(d=>d.field),['checks']);
+ const next=finalizeSnapshot(b,a);assert.equal(next.changed,false);assert.deepEqual(next.changedFields,[]);
  assert.equal(next.checks.find(c=>c.id==='premium')!.status,'ATTENTION');
  assert.equal(next.checks.find(c=>c.id==='jupiter')!.status,'ATTENTION');
+ assert.equal(next.observedNow!.premium,.2);
 });
 test('authority changes are recorded once; comparison labels do not cause another change',()=>{
  const first=finalizeSnapshot(sample(.1),null),same=finalizeSnapshot(structuredClone(first),first);
