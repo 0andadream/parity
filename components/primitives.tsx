@@ -10,7 +10,7 @@ export function Header(){return <header className="header"><Link href="/" classN
 export function Footer(){return <footer><span>PARITY <b>KNOW WHAT’S VERIFIED.</b></span><span>Onchain token state ≠ underlying SPV holdings.</span></footer>;}
 export function Badge({value}:{value:string}){return <span className={`badge ${value.toLowerCase().replaceAll('_','-').replaceAll(' ','-')}`}>{value.replaceAll('_',' ')}</span>;}
 export function Source({url,children='SOURCE'}:{url:string;children?:React.ReactNode}){return <a className="source" href={(/^https:\/\//.test(url)||url.startsWith('/api/'))?url:undefined} target="_blank" rel="noopener noreferrer">{children} <span aria-hidden="true">↗</span></a>;}
-export const shortHash=(value:string|null)=>value?value.slice(0,6)+'…'+value.slice(-4):'—';
+export const shortHash=(value:string|null)=>value?value.slice(0,6)+'…'+value.slice(-4):',';
 export function useClock(){const [now,setNow]=useState<number|null>(null);useEffect(()=>{setNow(Date.now());const i=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(i);},[]);return now;}
 export function Age({at,initialAge=0}:{at:string;initialAge?:number}){const now=useClock();const seconds=now===null?initialAge:Math.max(0,Math.floor((now-Date.parse(at))/1000));return <span title={at}>{seconds<60?`${seconds}s`:seconds<3600?`${Math.floor(seconds/60)}m ${seconds%60}s`:`${Math.floor(seconds/3600)}h ${Math.floor(seconds%3600/60)}m`}</span>;}
 export function Countdown({deadline,compact=false,at}:{deadline:string;compact?:boolean;at?:string}){

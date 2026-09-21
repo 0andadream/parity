@@ -59,10 +59,10 @@ No model scores risk. Checks are explicit rules. The UI animation illustrates a 
 | --- | --- |
 | [Asset register](https://parity-nu-lovat.vercel.app) | Four PreStocks, evidence classes, lifecycle, integrity hash |
 | [XAI](https://parity-nu-lovat.vercel.app/c/XAI) | Mint still observable; issuer conversion window closed |
-| [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX) | ACTION — holder deadline 12 March 2027, 23:59 UTC |
+| [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX) | ACTION, holder deadline 12 March 2027, 23:59 UTC |
 | [OPENAI](https://parity-nu-lovat.vercel.app/c/OPENAI) | Mint, authorities, mark, premium, Jupiter observation |
 | [ANTHROPIC](https://parity-nu-lovat.vercel.app/c/ANTHROPIC#issuer) | Dated BlockOffice attestation, with its scope |
-| [History](https://parity-nu-lovat.vercel.app/c/OPENAI#history) | BASELINE, STATE CHANGE, CONDITION — not every price tick |
+| [History](https://parity-nu-lovat.vercel.app/c/OPENAI#history) | BASELINE, STATE CHANGE, CONDITION, not every price tick |
 
 ## States
 
@@ -110,11 +110,11 @@ When evidence is unavailable:
 
 `NO DATA`
 
-`API PULLED AT` is not `MARK UPDATED AT`. If PreStocks does not expose an authoritative mark-update timestamp, Parity shows `MARK UPDATED AT — NO DATA`. Retrieval time does not establish mark freshness.
+`API PULLED AT` is not `MARK UPDATED AT`. If PreStocks does not expose an authoritative mark-update timestamp, Parity shows `MARK UPDATED AT, NO DATA`. Retrieval time does not establish mark freshness.
 
 ## 60-second demo
 
-### 0–8 sec
+### 0, 8 sec
 
 Open the homepage.
 
@@ -122,7 +122,7 @@ Open the homepage.
 
 Point at the four assets.
 
-### 8–23 sec
+### 8, 23 sec
 
 Open [XAI](https://parity-nu-lovat.vercel.app/c/XAI).
 
@@ -132,7 +132,7 @@ Point at `WINDOW CLOSED`, then at the onchain mint state.
 
 > “The token can remain observable on Solana even though the issuer-defined conversion window has closed.”
 
-### 23–35 sec
+### 23, 35 sec
 
 Open [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX).
 
@@ -140,7 +140,7 @@ Point at `ACTION` and the live countdown.
 
 > “SpaceX has another lifecycle deadline. Parity tracks it before the holder misses it.”
 
-### 35–50 sec
+### 35, 50 sec
 
 Open [OPENAI](https://parity-nu-lovat.vercel.app/c/OPENAI).
 
@@ -150,7 +150,7 @@ Point at mint, supply, mint authority, freeze authority, Token-2022 configuratio
 
 Point at `NOT INDEPENDENTLY OBSERVABLE`.
 
-### 50–60 sec
+### 50, 60 sec
 
 Open history. Show `BASELINE`, `CONDITION`, or a real `STATE CHANGE` if one exists.
 
