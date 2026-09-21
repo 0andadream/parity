@@ -1,18 +1,153 @@
+<div align="center">
+
 # PARITY
 
-Live application: https://parity-nu-lovat.vercel.app
+### Know what’s verified.
 
-Integrity and lifecycle monitoring for PreStocks.
+[![Network: Solana mainnet](https://img.shields.io/badge/network-Solana_mainnet-555555)](#day-0-evidence)
+[![Scope: PreStocks](https://img.shields.io/badge/scope-PreStocks-C45C26)](#what-parity-is)
+[![Checks: deterministic](https://img.shields.io/badge/checks-deterministic-555555)](#deterministic-checks)
+[![Snapshots: SHA-256](https://img.shields.io/badge/snapshots-SHA--256-555555)](#snapshot-hashing)
+
+**The integrity and lifecycle monitor for PreStocks.**
+
+Parity snapshots onchain token state, issuer evidence, market observations and lifecycle deadlines, then shows holders what is independently verified, attested, observed or not independently knowable.
+
+[Live app](https://parity-nu-lovat.vercel.app) · [Explore the evidence](#explore-the-evidence) · [How it works](#how-it-works) · [Verify it yourself](#verify-it-yourself) · [Run locally](#run-locally)
+
+**Solana Stocklana · Main Track · PreStocks Bounty**
+
+Next.js · TypeScript · Solana RPC · PreStocks · Jupiter · Vercel Blob
+
+</div>
+
+> **Parity is not Proof of Reserves.** A Solana mint does not independently establish underlying SPV holdings. Issuer terms and third-party attestations retain their sources and scope. Unavailable information stays `NO DATA`.
+
+## Explore the evidence
+
+Open any page without connecting a wallet. The application reads sources and records observations; it does not sign or execute transactions.
+
+| Open | What to inspect | What it establishes |
+| --- | --- | --- |
+| [Asset register](https://parity-nu-lovat.vercel.app) | Four assets, nine checks each, lifecycle states and scan age | Which recorded conditions deserve attention and which snapshots changed |
+| [XAI](https://parity-nu-lovat.vercel.app/c/XAI) | Closed conversion window alongside the observable mint | An onchain token can remain observable after an issuer-defined deadline |
+| [SPACEX](https://parity-nu-lovat.vercel.app/c/SPACEX) | Issuer-named conversion target and exact deadline countdown | A required holder action, attributed to the issuer’s disclosure |
+| [OPENAI](https://parity-nu-lovat.vercel.app/c/OPENAI) | Raw vs scaled supply, authorities, issuer mark and market premium | The difference between independently observed mint state and sourced economic information |
+| [ANTHROPIC](https://parity-nu-lovat.vercel.app/c/ANTHROPIC#issuer) | The published BlockOffice report and its date | What the identified third-party attestation covers, with its limitations |
+| [Snapshot history](https://parity-nu-lovat.vercel.app/c/OPENAI#history) | Current/previous hashes and expandable field-level differences | What changed between actual observations |
+
+Lifecycle examples reflect first-party disclosures reviewed on **21 September 2026**. Live prices, supplies, routes and check states can change. Check the timestamp on the observation you are viewing.
+
+## Contents
+
+- [What Parity is](#what-parity-is)
+- [Why it exists](#why-it-exists)
+- [How it works](#how-it-works)
+- [Evidence model](#evidence-model)
+- [Deterministic checks](#deterministic-checks)
+- [Snapshot hashing](#snapshot-hashing)
+- [Day 0 evidence](#day-0-evidence)
+- [Verify it yourself](#verify-it-yourself)
+- [What is implemented](#what-is-implemented)
+- [Server routes](#server-routes)
+- [Run locally](#run-locally)
+- [Engineering decisions](#engineering-decisions)
+- [Technology](#technology)
+- [Repository map](#repository-map)
+- [Honesty / limitations](#honesty--limitations)
+- [60-second demo](#60-second-demo)
+- [Acknowledgments](#acknowledgments)
+
+## What Parity is
+
+Parity is the integrity and lifecycle monitor for PreStocks. It records live Solana mint state, sourced issuer disclosures, dated third-party evidence, market observations and holder deadlines. Every observation retains its evidence classification and prior-state comparison. The MVP covers only OPENAI, ANTHROPIC, SPACEX and historical XAI.
+
+## Why it exists
+
+The private company, its holding structure, the PreStock product and the Solana token expose different kinds of information. Holders need to know which layer supports each claim.
+
+| Layer | What belongs here | Parity’s boundary |
+| --- | --- | --- |
+| Private company | Shares, capitalization and corporate events | A token account does not expose the complete private-company record |
+| SPV / holding entity | The arrangements behind the product’s economic exposure | Public issuer explanations and dated third-party reports have a defined scope |
+| PreStock product | Reference marks, conversion terms, deadlines and consequences | Preserve the issuer’s wording, source and review date |
+| Solana token | Mint, supply, authorities, extensions and metadata | Independently inspect the account through Solana RPC |
+| Holder | Possession of tokens and any action required by issuer terms | Surface the evidence and deadlines without investment recommendations |
+
+PreStocks describes economic exposure through holding entities. Token possession alone does not confer direct private-company shareholder rights. The [issuer’s explanation](https://prestocks.com/faq?tab=legal) and available reports are evidence to inspect, not facts derived from token supply.
+
+**XAI illustrates the problem:** the issuer’s conversion deadline can pass while its Solana mint remains observable. Parity places those two facts beside each other without treating either as proof of the other.
+
+## How it works
+
+Each scan reads the active issuer catalogue, inspects the relevant mint and requests a nominal $500 USDC quote. The engine combines these observations with manually reviewed disclosures, evaluates explicit rules and compares the resulting state with the previous saved snapshot.
+
+```mermaid
+flowchart LR
+    A[PreStocks catalogue API] --> E[Evidence engine]
+    B[Solana RPC / finalized mint] --> E
+    C[Jupiter / read-only quote] --> E
+    D[Reviewed lifecycle and attestation records] --> E
+    E --> F[Deterministic checks]
+    E --> G[Canonical JSON / SHA-256]
+    P[Previous saved snapshot] --> H[Field-level comparison]
+    G --> H
+    F --> I[Asset state and evidence dossier]
+    H --> I
+    I --> J[Saved snapshot history]
+```
+
+The graph describes data processing, not a transaction flow. No model makes decisions. The packet animation in the interface illustrates a scan and can replay a recorded result; it does not invent blockchain activity.
+
+Scans run on page/API access, with a **60-second refresh while the page is visible** and a **30-second minimum interval per asset**. Lifecycle records are reviewed manually; the app does not continuously crawl disclosures or send holder alerts.
+
+## Evidence model
+
+| Classification | Examples | Source and limit |
+| --- | --- | --- |
+| **ONCHAIN VERIFIED** | Mint address, owner program, authorities, raw/base/scaled supply, extensions and metadata | Finalized Solana RPC observations; these do not establish SPV holdings |
+| **ISSUER ATTESTED / THIRD-PARTY ATTESTED** | Reference marks, lifecycle terms and identified BlockOffice reports | Link each claim to its issuer or report, including review/report dates and scope |
+| **MARKET OBSERVED** | Reported token price, implied valuation, premium and a Jupiter quote | Attribute price data to the PreStocks API and routes to Jupiter; neither is a recommendation |
+| **NOT INDEPENDENTLY OBSERVABLE** | Full private cap tables, confidential holding-entity identities and current custody beyond available reports | Name the missing evidence without dismissing the attestations that do exist |
+
+A revoked authority is a known `null`, distinct from unavailable RPC data. An API retrieval timestamp is distinct from the time an issuer last updated its mark. A dated attestation is distinct from a live custody feed.
+
+## Deterministic checks
+
+Nine checks per asset:
+
+1. **Mint match:** live catalogue contract address against the validated SPL mint; onchain metadata mint, where supplied, must agree. `MATCH`, `MISMATCH` or `NO DATA`. XAI's historical association never manufactures a current catalogue match.
+2. **Supply:** raw string, integer decimals, exact decimal base UI supply. Effective scaled UI multiplier and display supply are separate. No floating-point arithmetic is used for raw-supply conversion. Token-2022 large integer fields are parsed losslessly.
+3. **Mint authority:** `FIRST_SEEN`, `UNCHANGED`, `CHANGED` or `NO DATA`; changes trigger attention.
+4. **Freeze authority:** present → `ATTENTION`; revoked → `VERIFIED`; unavailable → `NO DATA`. Presence is not an automatic failure.
+5. **Configuration:** hash owner, initialized state, decimals, authorities, extensions and onchain metadata. Accumulating withheld-fee balances are excluded from the configuration fingerprint but retained in the full snapshot. Configuration changes trigger attention.
+6. **Mark:** positive reference mark required; missing/nonpositive → `ATTENTION`. API retrieval timestamp and source mark-update timestamp are separate; an absent source timestamp is `NO DATA`.
+7. **Lifecycle:** `NONE_ON_FILE`, `ACTION`, `WINDOW_CLOSED`, derived from manually verified first-party terms and the UTC deadline. Exact fractional days are returned by the API; the UI shows complete days plus hours/minutes/seconds.
+8. **Premium:** `(tokenPrice - markPrice) / markPrice`. Absolute premium strictly greater than 0.15 triggers attention. Equality at ±15% does not. Missing/nonpositive mark cannot produce a premium. Displayed as percent and basis points.
+9. **Jupiter:** $500 nominal USDC, 500000000 raw units, ExactIn, 50 bps slippage. A valid route with impact strictly above 0.03 (3%) triggers attention. A recognized no-route response triggers attention. Timeouts, rate limits and malformed quotes produce `NO DATA`, not `NO`. Raw `priceImpactPct` is retained and multiplied by 100 for percentage display. No swap or wallet transaction exists in the app.
+
+State precedence: overdue required action → **CRITICAL**; future required action → **ACTION**; canonical change → **CHANGED**; any triggered or unavailable check → **ATTENTION**; otherwise **CLEAR**. Additional check attention remains visible even when the headline state is CHANGED. Approaching deadlines alone never create CRITICAL. The check count is checks without triggered conditions divided by total checks, not a risk score or investment judgment.
+
+## Snapshot hashing
+
+Object keys are sorted recursively; array order is retained except mint extensions, which are sorted by extension name. SHA-256 hashes UTF-8 canonical JSON. Included: actual issuer values, mint state, authorities, supply, extensions, metadata, lifecycle terms/state, dated attestation evidence, market quantities, routes and source links. Semantic dates such as a deadline, report date and multiplier activation are retained.
+
+Excluded: observation timestamps, RPC/quote context slots, route update slots, request durations, the derived countdown, computed check statuses and history pointers. These exclusions prevent clock ticks from manufacturing changes. Real quotes, supply activity and market prices can legitimately change on every scan. Field-level diffs preserve previous/current values. Availability changes are recorded; a failed scan never silently substitutes Day 0 data.
+
+Each saved scan has current/previous hashes, a first-seen timestamp and field-level differences. The first observation has no previous hash and is not labeled CHANGED. Up to 100 complete snapshots per asset are retained. History survives deployments in a private Vercel Blob store. ETag conditional writes prevent lost updates between instances; a competing committed snapshot is returned on collision. Local writes are atomic and same-process scans are coalesced. Local JSON is intended for a single development process.
 
 ## Day 0 evidence
 
-Observed 21 September 2026. Raw public responses are archived in `data/day0/`. These are historical evidence, never substituted for a failed live scan.
+Observed 21 September 2026. Raw public responses are archived in [data/day0](data/day0). These are historical evidence, never substituted for a failed live scan.
 
 ### Catalogue
 
-Source: https://prestocks.com/api/prestocks
+Source: [PreStocks catalogue API](https://prestocks.com/api/prestocks)
 
 OPENAI, ANTHROPIC and SPACEX are present. XAI is absent. No lifecycle/status field or source mark-update timestamp is present in the returned records. Those values are `NO DATA`. Sanitized sample (only requested assets; descriptions and image links omitted):
+
+<details>
+<summary>Inspect the sanitized catalogue response</summary>
 
 ```json
 [
@@ -52,24 +187,28 @@ OPENAI, ANTHROPIC and SPACEX are present. XAI is absent. No lifecycle/status fie
 ]
 ```
 
+</details>
+
 ### Solana accounts
 
 RPC: `https://api.mainnet-beta.solana.com`, `getAccountInfo`, `jsonParsed`, `finalized`. All four accounts are initialized Token-2022 mints owned by `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`.
 
-| Symbol | Mint | Raw supply | Decimals | Base UI supply | Mint / freeze authority |
-|---|---|---|---|---|---|
-| OPENAI | `PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF` | 1901869963771 | 9 | 1901.869963771 | `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` / `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` |
-| ANTHROPIC | `Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw` | 7381867194789 | 9 | 7381.867194789 | `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` / `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` |
-| SPACEX | `PreANxuXjsy2pvisWWMNB6YaJNzr7681wJJr2rHsfTh` | 8742506753069 | 9 | 8742.506753069 | `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` / `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` |
-| XAI | `PreC1KtJ1sBPPqaeeqL6Qb15GTLCYVvyYEwxhdfTwfx` | 2078524355305 | 9 | 2078.524355305 | `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` / `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc` |
+| Symbol | Mint | Raw supply | Decimals | Base UI supply |
+|---|---|---|---|---|
+| OPENAI | `PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF` | 1901869963771 | 9 | 1901.869963771 |
+| ANTHROPIC | `Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw` | 7381867194789 | 9 | 7381.867194789 |
+| SPACEX | `PreANxuXjsy2pvisWWMNB6YaJNzr7681wJJr2rHsfTh` | 8742506753069 | 9 | 8742.506753069 |
+| XAI | `PreC1KtJ1sBPPqaeeqL6Qb15GTLCYVvyYEwxhdfTwfx` | 2078524355305 | 9 | 2078.524355305 |
 
-XAI candidate is independently observable as an initialized Token-2022 mint with onchain symbol XAI and name xAI PreStocks. Its address also appears in the official https://prestocks.com/xai page payload. This verifies the historical address association; it does not create a current catalogue match.
+All four observed mints have mint authority and freeze authority `WV9PJN7XTmTLVwbutCLFxp8TyePee6Xq5mRq6Fti5Wc`. These are recorded authorities, not an endorsement of their configuration.
+
+XAI candidate is independently observable as an initialized Token-2022 mint with onchain symbol XAI and name xAI PreStocks. Its address also appears in the official [XAI page](https://prestocks.com/xai) payload. This verifies the historical address association; it does not create a current catalogue match.
 
 All mints expose permanentDelegate, defaultAccountState, transferFeeConfig, confidentialTransferMint, confidentialTransferFeeConfig, transferHook, scaledUiAmountConfig, metadataPointer, pausableConfig and tokenMetadata. Full states, metadata URIs, and slot evidence are in the RPC files. OPENAI has a scheduled scaled UI multiplier of 1.4861347 effective at Unix 1784305800. Base UI supply and scaled display supply must remain separate.
 
 ### Jupiter observations
 
-USDC mint `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`; input `500000000`; ExactIn; 50 bps slippage. Endpoint: https://lite-api.jup.ag/swap/v1/quote. Raw impact is a fraction (multiply by 100 for percentage display).
+USDC mint `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`; input `500000000`; ExactIn; 50 bps slippage. Endpoint: [Jupiter Lite quote API](https://lite-api.jup.ag/swap/v1/quote). Raw impact is a fraction (multiply by 100 for percentage display).
 
 | Symbol | Route exists | outAmount (raw) | priceImpactPct (raw) | Venues |
 |---|---|---|---|---|
@@ -96,15 +235,64 @@ The official [FAQ](https://prestocks.com/faq?tab=legal) explains that third-part
 
 These are third-party assessments of issuer-supplied documents and public information at a point in time, not statutory audits. They attest to the relationship between reported minted and mintable supply. Parity can inspect the report and its scope; it cannot independently reproduce the underlying document review or establish current custody from those dated reports. No linked report was found on the reviewed OPENAI or XAI product page: NO DATA, not a claim that none exists anywhere. Full private-company cap tables, confidential holding-entity identities and real-time underlying custody remain not independently observable from these public sources.
 
-## What Parity is
+## Verify it yourself
 
-Parity is the integrity and lifecycle monitor for PreStocks. It records live Solana mint state, sourced issuer disclosures, dated third-party evidence, market observations and holder deadlines. Every observation retains its evidence classification and prior-state comparison. The MVP covers only OPENAI, ANTHROPIC, SPACEX and historical XAI.
+### Inspect the saved source evidence
 
-## Why it exists
+| Evidence | Where to look |
+| --- | --- |
+| Catalogue payload and capture time | [catalogue.json](data/day0/catalogue.json), [observation.json](data/day0/observation.json) |
+| Finalized mint observations | [OPENAI](data/day0/OPENAI-rpc.json), [ANTHROPIC](data/day0/ANTHROPIC-rpc.json), [SPACEX](data/day0/SPACEX-rpc.json), [XAI](data/day0/XAI-rpc.json) |
+| Raw Jupiter responses | [OPENAI](data/day0/OPENAI-jupiter.json), [ANTHROPIC](data/day0/ANTHROPIC-jupiter.json), [SPACEX](data/day0/SPACEX-jupiter.json), [XAI](data/day0/XAI-jupiter.json) |
+| Curated lifecycle terms and report records | [data/lifecycle.ts](data/lifecycle.ts), [official lifecycle sources](#lifecycle-sources) |
+| Exact check and state logic | [lib/checks.ts](lib/checks.ts) |
+| Canonicalization and field-level differences | [lib/canonical.ts](lib/canonical.ts), [state-bearing fields](lib/engine.ts) |
 
-A private company, an SPV or other holding entity, a PreStock product, its Solana mint and a token holder are different things. PreStocks describes economic exposure through holding entities; owning the token does not itself confer direct private-company shareholder rights. Solana exposes the token's technical state. Issuer disclosures describe offchain arrangements and lifecycle terms. A holder needs these layers kept separate, with explicit provenance and limits.
+These captures document a historical observation. They are never substituted for a failed live request.
 
-## Running locally
+### Request a fresh observation
+
+```sh
+curl --fail --silent --show-error https://parity-nu-lovat.vercel.app/api/scan
+curl --fail --silent --show-error https://parity-nu-lovat.vercel.app/api/scan/OPENAI
+```
+
+Inspect `scannedAt`, `observations`, `errors`, `canonical`, `currentHash`, `previousHash` and `changedFields`. A call within the minimum interval returns the saved observation with its actual age. Requests read upstream sources and may append a snapshot to Parity’s history; they never submit a Solana transaction.
+
+After installing dependencies, run the same engine locally:
+
+```sh
+npm run scan
+npm test
+npm run typecheck
+npm run build
+```
+
+The [12 engine tests](tests/engine.test.ts) cover canonicalization, lossless token parsing, multiplier activation, account validation, exact deadlines, premium/impact boundaries, route failures, authority changes and historical-mint provenance. Test fixtures use captured responses with controlled changes for boundary cases. Passing tests do not establish live source availability or verify offchain holdings.
+
+## What is implemented
+
+| Capability | Implementation |
+| --- | --- |
+| Four-asset register and detail pages | OPENAI, ANTHROPIC, SPACEX and historical XAI |
+| Onchain scans | Mainnet RPC, finalized commitment, Token and Token-2022 parsing |
+| Issuer and backing evidence | Sourced catalogue fields, manually curated terms and identified attestation reports |
+| Market observations | Reported prices, deterministic premium and real $500 Jupiter quotes |
+| Lifecycle handling | Exact deadline transitions and dynamic countdowns |
+| Change history | Canonical SHA-256, previous/current comparison and field-level diffs |
+| Persistence | Local JSON or private Vercel Blob; up to 100 complete scans per asset |
+| Flow animation | Scan illustration, recorded-result replay, pause and reduced-motion support |
+
+Wallet connections, swaps, portfolio management, investment recommendations, generic news and LLM scoring are outside this implementation.
+
+## Server routes
+
+- `GET /api/scan`: catalogue summary, each asset's checks, state, lifecycle, hash pair, change flag, scan age, and an aggregate state hash.
+- `GET /api/scan/[symbol]`: complete observation, canonical JSON, field-level differences, source URLs and saved history. Unknown symbols return 404.
+
+The UI polls once per minute while visible and offers SCAN NOW. Calls within 30 seconds reuse the saved observation with its actual timestamp and age. Scan age never implies source mark freshness. Source requests time out after 15 seconds. History-storage failure returns 503 rather than silently starting a new comparison chain. If production storage is not configured, the response explicitly says history is not saved.
+
+## Run locally
 
 Requires Node.js 20.9+ (Vercel project uses Node.js 24), npm and outbound HTTPS.
 
@@ -116,43 +304,56 @@ npm run dev
 
 Set `RPC_URL` to a mainnet Solana RPC endpoint if desired; blank uses the public mainnet endpoint. Credentials are server-only and are never returned by the API or used by browser code. `npm run scan` runs the engine directly (load environment variables through your shell if using a private endpoint). Local history uses ignored `.parity/*.json` files with atomic replacement. `BLOB_READ_WRITE_TOKEN` enables private Vercel Blob storage. Never commit `.env.local`.
 
-## Evidence model
+| Variable | Purpose |
+| --- | --- |
+| `RPC_URL` | Optional mainnet endpoint; empty uses the public Solana RPC |
+| `BLOB_READ_WRITE_TOKEN` | Optional private Blob credentials for durable history |
+| `CRON_SECRET` | Reserved configuration placeholder; no scheduled-scan route is implemented |
 
-- **ONCHAIN VERIFIED:** finalized RPC mint, owner, initialized state, raw/base/scaled supply, authorities, Token/Token-2022 configuration and onchain metadata. A revoked authority is a known `null`, distinct from unavailable RPC data.
-- **ISSUER ATTESTED / THIRD-PARTY ATTESTED:** API reference marks, manually reviewed lifecycle terms and explicitly attributed BlockOffice reports. Report dates and scope are displayed. No current custody conclusion is inferred from a dated report.
-- **MARKET OBSERVED:** token price and implied valuation as reported by the issuer API, calculated premium and a real read-only Jupiter quote. An issuer API market price is not presented as an independent trade tape.
-- **NOT INDEPENDENTLY OBSERVABLE:** underlying facts beyond the reviewed public evidence, including current confidential custody arrangements and private cap tables. This classification does not erase the value of published attestations.
+With no Blob token, local scans write to `.parity/`. On Vercel, an unconfigured store is reported explicitly as unavailable rather than presented as durable history. The deployed app uses a private Blob store.
 
-## Deterministic checks
+## Engineering decisions
 
-Nine checks per asset:
+- **Preserve provenance.** Onchain observations, issuer statements, third-party reports and market data are never collapsed into a single claim of backing.
+- **Keep time honest.** Source retrieval clocks are shown separately from semantic dates. Countdown ticks and RPC slots do not manufacture state changes.
+- **Retain numerical meaning.** Raw supply stays a decimal string. Base supply and effective scaled UI supply remain separate, with large Token-2022 integers parsed losslessly.
+- **Distinguish missing evidence from a negative result.** A quote timeout is `NO DATA`; a recognized no-route response is `NO`. A missing public report does not prove that no report exists.
+- **Protect comparison continuity.** Storage failures do not silently create a fresh history. Conditional Blob writes prevent one instance from overwriting another’s committed chain.
+- **Make the decision path inspectable.** Explicit thresholds and source-linked checks replace an opaque score. Real market changes can still produce a new hash on every scan.
 
-1. **Mint match:** live catalogue contract address against the validated SPL mint; onchain metadata mint, where supplied, must agree. `MATCH`, `MISMATCH` or `NO DATA`. XAI's historical association never manufactures a current catalogue match.
-2. **Supply:** raw string, integer decimals, exact decimal base UI supply. Effective scaled UI multiplier and display supply are separate. No floating-point arithmetic is used for raw-supply conversion. Token-2022 large integer fields are parsed losslessly.
-3. **Mint authority:** `FIRST_SEEN`, `UNCHANGED`, `CHANGED` or `NO DATA`; changes trigger attention.
-4. **Freeze authority:** present → `ATTENTION`; revoked → `VERIFIED`; unavailable → `NO DATA`. Presence is not an automatic failure.
-5. **Configuration:** hash owner, initialized state, decimals, authorities, extensions and onchain metadata. Accumulating withheld-fee balances are excluded from the configuration fingerprint but retained in the full snapshot. Configuration changes trigger attention.
-6. **Mark:** positive reference mark required; missing/nonpositive → `ATTENTION`. API retrieval timestamp and source mark-update timestamp are separate; an absent source timestamp is `NO DATA`.
-7. **Lifecycle:** `NONE_ON_FILE`, `ACTION`, `WINDOW_CLOSED`, derived from manually verified first-party terms and the UTC deadline. Exact fractional days are returned by the API; the UI shows complete days plus hours/minutes/seconds.
-8. **Premium:** `(tokenPrice - markPrice) / markPrice`. Absolute premium strictly greater than 0.15 triggers attention. Equality at ±15% does not. Missing/nonpositive mark cannot produce a premium. Displayed as percent and basis points.
-9. **Jupiter:** $500 nominal USDC, 500000000 raw units, ExactIn, 50 bps slippage. A valid route with impact strictly above 0.03 (3%) triggers attention. A recognized no-route response triggers attention. Timeouts, rate limits and malformed quotes produce `NO DATA`, not `NO`. Raw `priceImpactPct` is retained and multiplied by 100 for percentage display. No swap or wallet transaction exists in the app.
+## Technology
 
-State precedence: overdue required action → **CRITICAL**; future required action → **ACTION**; canonical change → **CHANGED**; any triggered or unavailable check → **ATTENTION**; otherwise **CLEAR**. Additional check attention remains visible even when the headline state is CHANGED. Approaching deadlines alone never create CRITICAL. The check count is checks without triggered conditions divided by total checks, not a risk score or investment judgment.
+| Layer | Technology |
+| --- | --- |
+| Application | Next.js App Router, React, TypeScript |
+| Styling and motion | Tailwind CSS, CSS and SVG animations |
+| Onchain observations | Solana JSON-RPC with `jsonParsed` mint accounts |
+| Issuer data | PreStocks catalogue API and manually reviewed first-party disclosures |
+| Market routing observation | Jupiter Lite quote API |
+| Numeric handling | `decimal.js` and `json-bigint` |
+| Snapshots | Node.js SHA-256; local JSON or private Vercel Blob |
+| Deployment | [Vercel production app](https://parity-nu-lovat.vercel.app) |
+| Validation | Node.js test runner through `tsx`, TypeScript and Next.js production build |
 
-## Snapshot hashing
+Exact dependency versions are recorded in [package-lock.json](package-lock.json).
 
-Object keys are sorted recursively; array order is retained except mint extensions, which are sorted by extension name. SHA-256 hashes UTF-8 canonical JSON. Included: actual issuer values, mint state, authorities, supply, extensions, metadata, lifecycle terms/state, dated attestation evidence, market quantities, routes and source links. Semantic dates such as a deadline, report date and multiplier activation are retained.
+## Repository map
 
-Excluded: observation timestamps, RPC/quote context slots, route update slots, request durations, the derived countdown, computed check statuses and history pointers. These exclusions prevent clock ticks from manufacturing changes. Real quotes, supply activity and market prices can legitimately change on every scan. Field-level diffs preserve previous/current values. Availability changes are recorded; a failed scan never silently substitutes Day 0 data.
-
-Each saved scan has current/previous hashes, a first-seen timestamp and field-level differences. The first observation has no previous hash and is not labeled CHANGED. Up to 100 complete snapshots per asset are retained. History survives deployments in a private Vercel Blob store. ETag conditional writes prevent lost updates between instances; a competing committed snapshot is returned on collision. Local writes are atomic and same-process scans are coalesced. Local JSON is intended for a single development process.
-
-## Server routes
-
-- `GET /api/scan`: catalogue summary, each asset's checks, state, lifecycle, hash pair, change flag, scan age, and an aggregate state hash.
-- `GET /api/scan/[symbol]`: complete observation, canonical JSON, field-level differences, source URLs and saved history. Unknown symbols return 404.
-
-The UI polls once per minute while visible and offers SCAN NOW. Calls within 30 seconds reuse the saved observation with its actual timestamp and age. Scan age never implies source mark freshness. Source requests time out after 15 seconds. History-storage failure returns 503 rather than silently starting a new comparison chain. If production storage is not configured, the response explicitly says history is not saved.
+| Path | Responsibility |
+| --- | --- |
+| [app](app) | Register, detail pages and server API routes |
+| [components](components) | Evidence tables, lifecycle blocks, history and scan-flow animation |
+| [lib/sources.ts](lib/sources.ts) | Source requests, catalogue normalization, mint and quote parsing |
+| [lib/checks.ts](lib/checks.ts) | Nine deterministic checks and state precedence |
+| [lib/engine.ts](lib/engine.ts) | Evidence collection and state-bearing snapshot fields |
+| [lib/canonical.ts](lib/canonical.ts) | Sorted serialization, SHA-256 and recursive differences |
+| [lib/service.ts](lib/service.ts) | Scan coalescing, minimum interval and API response assembly |
+| [lib/store.ts](lib/store.ts) | Atomic local writes and conditional private Blob persistence |
+| [data/lifecycle.ts](data/lifecycle.ts) | Reviewed lifecycle disclosures and attestation records |
+| [data/day0](data/day0) | Historical raw catalogue, RPC and quote responses |
+| [scripts](scripts) | Day 0 collection and command-line scanner |
+| [tests/engine.test.ts](tests/engine.test.ts) | Evidence-engine regression and boundary tests |
+| [.env.example](.env.example) | Server-only configuration template |
 
 ## Honesty / limitations
 
@@ -168,10 +369,6 @@ The UI polls once per minute while visible and offers SCAN NOW. Calls within 30 
 - The publicly linked reports do not expose a complete cap table, underlying confidential documents or a live holding-entity custody feed.
 - Historical XAI catalogue prices are not manufactured. Its current issuer API values remain `NO DATA` when the asset is absent, even when its mint and a market route remain observable.
 
-## Validation
-
-`npm test` exercises canonical ordering/diffs, lossless token parsing, scheduled multiplier activation, invalid-mint rejection, exact deadline boundaries, premium/impact thresholds, route failure vs absence, authority changes and historical-mint provenance. Fixtures under `data/day0` are captured source responses, not invented market data. `npm run typecheck` and `npm run build` validate the application.
-
 ## 60-second demo
 
 1. **0–10s:** Asset register — private exposure, issuer claim and Solana token are separate evidence layers.
@@ -180,6 +377,10 @@ The UI polls once per minute while visible and offers SCAN NOW. Calls within 30 
 4. **40–52s:** OPENAI — inspect mint, supply, authorities, mark, market price, premium and backing classification.
 5. **52–60s:** Open a real changed history row. Parity observes what it can, labels sourced claims, and records what changed.
 
-## Evidence-flow motion
+## Acknowledgments
 
-The source-to-checker packet motion is inspired by the [OFT Sentinel message-flow visualization](https://oft-sentinel.netlify.app/). PARITY retains its own visual design and evidence model. Motion illustrates active scan work and then briefly replays the returned observation; it is not a blockchain transaction stream. Missing source data never becomes a successful packet in replay. The replay button does not fetch or fabricate data. Motion can be paused and respects reduced-motion preferences.
+- [PreStocks](https://prestocks.com) provides the product catalogue and issuer disclosures; report links identify their third-party provider.
+- [OFT Sentinel](https://oft-sentinel.netlify.app/) inspired the source-to-checker packet motion. Parity’s animation represents evidence processing, not token transfers.
+- [Morrow](https://github.com/Enoch208/morrow/) inspired this README’s guided tour, evidence links, architecture explanation and explicit trust boundaries.
+
+**Know what’s verified. See what changed. Understand what still depends on trust.**
